@@ -1,5 +1,4 @@
 import os
-import cv2 as cv
 import streamlit as st
 
 import utils
