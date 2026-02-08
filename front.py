@@ -1,5 +1,4 @@
 import os
-import cv2 as cv
 import streamlit as st
 
 import utils
@@ -58,6 +57,12 @@ cols = st.columns([1, 5, 3, 1])
 st.write('---')
 st.header('Pisicu')
 
+# with vericudb() as pool:
+#     with pool.connection() as conn:
+#         with conn.cursor() as cursor:
+#             cursor.execute('SELECT nume, frecventa, timp, last_completed FROM tasks')
+
+
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
 #     sarbatoriti, upcoming = utils.get_birthdays()
 #     if len(sarbatoriti) > 0:
@@ -94,3 +99,17 @@ st.header('Pisicu')
 # with food:
 #     st.header("A doge")
 #     st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+
+
+from supabase import create_client, Client
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+
+supabase = create_client(url, key)
+# supabase: Client = create_client(url, key)
+
+response = supabase.table("tasks").select("*").execute()
+
+data = response.data
+st.write(data)
+
