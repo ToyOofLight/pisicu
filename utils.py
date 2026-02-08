@@ -4,7 +4,7 @@ import calendar
 # import tempfile
 # import time
 from datetime import timedelta, timezone, datetime as dt
-
+from zoneinfo import ZoneInfo
 import pandas as pd
 # import psycopg2
 # import requests
@@ -21,7 +21,8 @@ from supabase import create_client
 supabase = create_client(st.secrets['SUPABASE_URL'], st.secrets['SUPABASE_KEY'])
 BASE_PATH = 'E:\🛡️\coding\Vericu'
 NOW = dt.now()
-TODAY = dt.today().date()
+TODAY = dt.now(ZoneInfo('Europe/Bucharest')).date()
+# TODAY = dt.today().date() # todo remove?
 WEEKDAYS = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică']
 AZI = WEEKDAYS[TODAY.weekday()]
 states_file = f"states_{str(TODAY)[4:].replace('-', '')}.csv"

@@ -96,5 +96,3 @@ for i, freq in enumerate(utils.FRECVENTE):
 # with food:
 #     st.header("A doge")
 #     st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-
-
