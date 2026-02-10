@@ -5,6 +5,7 @@ import utils
 
 css = '''<style>
     p {font-size: 25px!important;}
+    label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
 #     button[title="View fullscreen"], a[href="#vericul"], .stAppHeader {display: none;}
 #     [data-testid="StyledLinkIconContainer"] {left:0; width:100%;}
 #     [data-testid="StyledLinkIconContainer"] span {margin-left:0;}
