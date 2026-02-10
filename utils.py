@@ -22,7 +22,6 @@ supabase = create_client(st.secrets['SUPABASE_URL'], st.secrets['SUPABASE_KEY'])
 BASE_PATH = 'E:\🛡️\coding\Vericu'
 NOW = dt.now()
 TODAY = dt.now(ZoneInfo('Europe/Bucharest')).date()
-# TODAY = dt.today().date() # todo remove?
 WEEKDAYS = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică']
 LUNI = {
     'Jan': 'Ianuarie',
@@ -38,7 +37,6 @@ LUNI = {
     'Nov': 'Noiembrie',
     'Dec': 'Decembrie'
 }
-
 AZI = WEEKDAYS[TODAY.weekday()]
 states_file = f"states_{str(TODAY)[4:].replace('-', '')}.csv"
 FRECVENTE = ['Azi', 'Zilnic', 'Săptămânal', 'Lunar', 'Anual']
@@ -48,10 +46,6 @@ USERS = ['elvin', 'ioana']
 
 
 def get_tasks():
-    # with vericudb() as pool:  # todo remove
-    #     with pool.connection() as conn:
-    #         tasks = pd.read_sql('SELECT * FROM "tasks" WHERE "user" = %s', conn, params=(st.query_params['user'],))
-
     response = supabase.table('tasks').select('*').eq('user', st.query_params['user']).execute()
     tasks = pd.DataFrame(response.data)
     if tasks.empty:
