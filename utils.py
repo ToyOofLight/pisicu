@@ -175,13 +175,16 @@ def reset_tasks():
     #         with conn.cursor() as cursor:
                 # cursor.execute('SELECT nume, frecventa, timp, last_completed FROM tasks')
                 # tasks = cursor.fetchall()
-    response = supabase.table("tasks").select("nume, frecventa, timp, last_completed").execute()
+    response = supabase.table('tasks').select('nume, frecventa, timp, last_completed').execute()
     tasks = response.data
 
-    for nume, frecventa, timp, last_completed in tasks:
+    for t in tasks:
+        nume = t['nume']
+        frecventa = t['frecventa']
+        timp = t['timp']
+        last_completed = pd.to_datetime(t['last_completed'])
         if not last_completed:
             continue
-
         reset = False
 
         if frecventa in ['Azi', 'Zilnic'] and NOW.day != last_completed.day:
@@ -196,7 +199,7 @@ def reset_tasks():
         if reset:
             if frecventa == 'Azi':
                 # cursor.execute('DELETE FROM tasks WHERE frecventa = %s', (frecventa,))
-                supabase.table("tasks").delete().eq("frecventa", frecventa).execute()
+                supabase.table('tasks').delete().eq('frecventa', frecventa).execute()
 
             else:
                 # cursor.execute(f'UPDATE tasks SET completed = FALSE WHERE nume = %s AND frecventa = %s AND timp = %s',

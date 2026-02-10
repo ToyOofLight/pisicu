@@ -30,35 +30,63 @@ cols = st.columns([1, 5, 3, 1])
 
 
 tasks = utils.get_tasks()
-cols = st.columns(6)
+cols = st.columns(1)
+tabs = st.tabs(utils.FRECVENTE)
 for i, freq in enumerate(utils.FRECVENTE):
-    freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
-    cols[i].button(f'➕{" ‎ "*2}{freq_text}', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
+    with tabs[i]:
+        freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
+        st.button(f'➕{" ‎ " * 2}{freq_text}', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
 
-    if not freq in tasks.keys():
-        continue
+        if not freq in tasks.keys():
+            continue
 
-    for j, row in tasks[freq].iterrows():
-        colss = cols[i].columns([5, 1, 1])
-        text = f"{row['nume']}" + ('' if freq == 'Azi' else f" ({row['timp']})")
-        colss[0].checkbox(text, value=row['completed'], on_change=utils.check_task,
-                          args=(True, row['nume'], freq, row['timp']), help=row['info'])
-        colss[1].button('✏️', key=f'edit_{freq}_{row["nume"]}', on_click=utils.edit_dialog,
-                        args=(row['nume'], freq, row['timp'], row['info']))
-        colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
-                        args=(row['nume'], freq, row['timp']))
-    cols[i].write('---')
-    for j, row in tasks[f'✓{freq}'].iterrows():    # completate
-        colss = cols[i].columns([5, 1, 1])
-        text = f"{row['nume']}" + ('' if freq == 'Azi' else f" ({row['timp']})")
-        colss[0].checkbox(f"~~{text}~~", value=row['completed'], on_change=utils.check_task,
-                          args=(False, row['nume'], freq, row['timp']), help=row['info'])
-        colss[1].button('✏️', key=f'edit_{freq}_{row["nume"]}', on_click=utils.edit_dialog,
-                        args=(row['nume'], freq, row['timp'], row['info']))
-        colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
-                        args=(row['nume'], freq, row['timp']))
+        for j, row in tasks[freq].iterrows():
+            colss = st.columns([5, 1, 1])
+            text = f"{row['nume']}" + ('' if freq == 'Azi' else f" ({row['timp']})")
+            colss[0].checkbox(text, value=row['completed'], on_change=utils.check_task,
+                              args=(True, row['nume'], freq, row['timp']), help=row['info'])
+            colss[1].button('✏️', key=f'edit_{freq}_{row["nume"]}', on_click=utils.edit_dialog,
+                            args=(row['nume'], freq, row['timp'], row['info']))
+            colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
+                            args=(row['nume'], freq, row['timp']))
+        st.write('---')
+        for j, row in tasks[f'✓{freq}'].iterrows():  # completate
+            colss = st.columns([5, 1, 1])
+            text = f"{row['nume']}" + ('' if freq == 'Azi' else f" ({row['timp']})")
+            colss[0].checkbox(f"~~{text}~~", value=row['completed'], on_change=utils.check_task,
+                              args=(False, row['nume'], freq, row['timp']), help=row['info'])
+            colss[1].button('✏️', key=f'edit_{freq}_{row["nume"]}', on_click=utils.edit_dialog,
+                            args=(row['nume'], freq, row['timp'], row['info']))
+            colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
+                            args=(row['nume'], freq, row['timp']))
 
-    utils.reset_tasks()
+    # freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
+    # cols[i].button(f'➕{" ‎ "*2}{freq_text}', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
+    #
+    # if not freq in tasks.keys():
+    #     continue
+    #
+    # for j, row in tasks[freq].iterrows():
+    #     colss = cols[i].columns([5, 1, 1])
+    #     text = f"{row['nume']}" + ('' if freq == 'Azi' else f" ({row['timp']})")
+    #     colss[0].checkbox(text, value=row['completed'], on_change=utils.check_task,
+    #                       args=(True, row['nume'], freq, row['timp']), help=row['info'])
+    #     colss[1].button('✏️', key=f'edit_{freq}_{row["nume"]}', on_click=utils.edit_dialog,
+    #                     args=(row['nume'], freq, row['timp'], row['info']))
+    #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
+    #                     args=(row['nume'], freq, row['timp']))
+    # cols[i].write('---')
+    # for j, row in tasks[f'✓{freq}'].iterrows():    # completate
+    #     colss = cols[i].columns([5, 1, 1])
+    #     text = f"{row['nume']}" + ('' if freq == 'Azi' else f" ({row['timp']})")
+    #     colss[0].checkbox(f"~~{text}~~", value=row['completed'], on_change=utils.check_task,
+    #                       args=(False, row['nume'], freq, row['timp']), help=row['info'])
+    #     colss[1].button('✏️', key=f'edit_{freq}_{row["nume"]}', on_click=utils.edit_dialog,
+    #                     args=(row['nume'], freq, row['timp'], row['info']))
+    #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
+    #                     args=(row['nume'], freq, row['timp']))
+
+utils.reset_tasks()
 
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
 #     sarbatoriti, upcoming = utils.get_birthdays()
