@@ -24,6 +24,21 @@ NOW = dt.now()
 TODAY = dt.now(ZoneInfo('Europe/Bucharest')).date()
 # TODAY = dt.today().date() # todo remove?
 WEEKDAYS = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică']
+LUNI = {
+    'Jan': 'Ianuarie',
+    'Feb': 'Februarie',
+    'Mar': 'Martie',
+    'Apr': 'Aprilie',
+    'May': 'Mai',
+    'Jun': 'Iunie',
+    'Jul': 'Iulie',
+    'Aug': 'August',
+    'Sep': 'Septembrie',
+    'Oct': 'Octombrie',
+    'Nov': 'Noiembrie',
+    'Dec': 'Decembrie'
+}
+
 AZI = WEEKDAYS[TODAY.weekday()]
 states_file = f"states_{str(TODAY)[4:].replace('-', '')}.csv"
 FRECVENTE = ['Azi', 'Zilnic', 'Săptămânal', 'Lunar', 'Anual']
@@ -48,6 +63,7 @@ def get_tasks():
 
         # Sort:
         if freq == 'Lunar':
+            freq_df['timp'] = freq_df['timp'].astype(int)
             freq_df.sort_values(by=['timp'], inplace=True)
         elif freq != 'Azi':
             if freq == 'Zilnic':
@@ -68,22 +84,23 @@ def get_tasks():
 def add_dialog(freq):
     @st.dialog(f'Adaugă task {freq}')
     def add_task():
-        cols = st.columns(2)
+        coloane = 1 if freq == 'Azi' else 2 if freq in ['Azi', 'Anual'] else [1, 2.4]
+        cols = st.columns(coloane)
         nume_col = 0 if freq == 'Azi' else 1
         timp = '.'
         if freq == 'Zilnic':
-            timp = cols[0].time_input('Ora')
+            timp = cols[0].time_input('Ora', value=(dt.now() + timedelta(hours=2)).time())
         elif freq == 'Săptămânal':
             timp = cols[0].selectbox('Ziua', WEEKDAYS)
         elif freq == 'Lunar':
             timp = cols[0].number_input(TIMPI[freq], min_value=1, max_value=31)
         elif freq == 'Anual':
-            colss = cols[0].columns(2)
+            colss = cols[0].columns([1, 2])
             ziua = colss[0].number_input('Ziua', min_value=1, max_value=31, step=1)
             luna = colss[1].selectbox('Luna', list(calendar.month_abbr)[1:])
             timp = f'{ziua}{luna}'
 
-        nume = cols[nume_col].text_input('', placeholder='nume', autocomplete='off')
+        nume = cols[nume_col].text_input('', placeholder='denumire', autocomplete='off')
         info = st.text_area('', placeholder='ℹ info').replace('\n', '  \n')
         if nume and timp and st.columns([6, 1])[1].button('➕'):
             if ':' in str(timp):
@@ -102,9 +119,10 @@ def add_dialog(freq):
 
 
 def edit_dialog(nume_i, freq, timp_i, info_i):
-    @st.dialog(f'✏️ Edit task {freq}: {nume_i}' + ('' if freq == 'Azi' else f' ({timp_i})'))
+    @st.dialog(f'✏️ Edit task {freq}:\n\n{nume_i}' + ('' if freq == 'Azi' else f' ({timp_i})'))
     def edit_task():
-        cols = st.columns(2)
+        coloane = 1 if freq == 'Azi' else 2 if freq in ['Azi', 'Anual'] else [1, 2.4]
+        cols = st.columns(coloane)
         nume_col = 0 if freq == 'Azi' else 1
         timp = '.'
         if freq == 'Zilnic':
