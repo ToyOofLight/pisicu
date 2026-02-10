@@ -170,11 +170,6 @@ def check_task(completed, nume, frecventa, timp):
 
 
 def reset_tasks():
-    # with vericudb() as pool:
-    #     with pool.connection() as conn:
-    #         with conn.cursor() as cursor:
-                # cursor.execute('SELECT nume, frecventa, timp, last_completed FROM tasks')
-                # tasks = cursor.fetchall()
     response = supabase.table('tasks').select('nume, frecventa, timp, last_completed').execute()
     tasks = response.data
 
@@ -198,15 +193,9 @@ def reset_tasks():
 
         if reset:
             if frecventa == 'Azi':
-                # cursor.execute('DELETE FROM tasks WHERE frecventa = %s', (frecventa,))
                 supabase.table('tasks').delete().eq('frecventa', frecventa).execute()
 
             else:
-                # cursor.execute(f'UPDATE tasks SET completed = FALSE WHERE nume = %s AND frecventa = %s AND timp = %s',
-                #            (nume, frecventa, timp))
-
                 (supabase.table('tasks').update({'completed': False}).eq('nume', nume).eq('frecventa', frecventa)
                     .eq('timp', timp).execute()
                 )
-
-            # conn.commit()
