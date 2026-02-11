@@ -156,7 +156,7 @@ def reset_tasks():
     response = supabase.table('tasks').select('nume, frecventa, timp, last_completed').execute()
     tasks = response.data
 
-    st.write(f'NOW.day: {NOW.day}')  # todo remove
+    st.write(f'NOW: {NOW}')  # todo remove
 
     for t in tasks:
         last_completed = pd.to_datetime(t['last_completed'])

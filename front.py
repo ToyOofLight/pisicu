@@ -41,7 +41,7 @@ for t in range(2):
             colss = cols[i].columns([1, 9 if t == 0 else 5, 10 if t == 0 else 5])
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
-            procent = int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
+            procent = 0 if tasks[freq].empty else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
             colss[1].subheader(f'{freq_text} [{procent}%]')
             colss[-1].progress(procent)
 
@@ -109,7 +109,9 @@ for t in range(2):
     #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
     #                     args=(row['nume'], freq, row['timp']))
 
+st.write('⬇️ before reset')    # todo remove
 utils.reset_tasks()
+st.write('⬆️ after reset')    # todo remove
 
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
 #     sarbatoriti, upcoming = utils.get_birthdays()
