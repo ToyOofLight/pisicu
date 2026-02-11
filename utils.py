@@ -10,9 +10,6 @@ import pandas as pd
 # import requests
 import streamlit as st
 # from PIL import Image, ImageOps
-# from contextlib import contextmanager
-# from dotenv import load_dotenv
-# from psycopg_pool import ConnectionPool
 
 from supabase import create_client
 
@@ -40,7 +37,6 @@ LUNI = {
 AZI = WEEKDAYS[TODAY.weekday()]
 states_file = f"states_{str(TODAY)[4:].replace('-', '')}.csv"
 FRECVENTE = ['Azi', 'Zilnic', 'Săptămânal', 'Lunar', 'Anual']
-TIMPI = {'Zilnic': 'Ora', 'Săptămânal': 'Ziua', 'Lunar': 'Ziua', 'Anual': 'Data'}
 USERS = ['elvin', 'ioana']
 # endregion
 
@@ -83,19 +79,19 @@ def add_dialog(freq):
         nume_col = 0 if freq == 'Azi' else 1
         timp = '.'
         if freq == 'Zilnic':
-            timp = cols[0].time_input('Ora', value=(dt.now() + timedelta(hours=2)).time())
+            timp = cols[0].time_input('', value=(dt.now() + timedelta(hours=2)).time(), label_visibility='collapsed')
         elif freq == 'Săptămânal':
-            timp = cols[0].selectbox('Ziua', WEEKDAYS)
+            timp = cols[0].selectbox('', WEEKDAYS, label_visibility='collapsed')
         elif freq == 'Lunar':
-            timp = cols[0].number_input(TIMPI[freq], min_value=1, max_value=31)
+            timp = cols[0].number_input('', min_value=1, max_value=31, label_visibility='collapsed')
         elif freq == 'Anual':
             colss = cols[0].columns([1, 2])
-            ziua = colss[0].number_input('Ziua', min_value=1, max_value=31, step=1)
-            luna = colss[1].selectbox('Luna', list(calendar.month_abbr)[1:])
+            ziua = colss[0].number_input('', min_value=1, max_value=31, step=1, label_visibility='collapsed')
+            luna = colss[1].selectbox('', list(calendar.month_abbr)[1:], label_visibility='collapsed')
             timp = f'{ziua}{luna}'
 
-        nume = cols[nume_col].text_input('', placeholder='denumire', autocomplete='off')
-        info = st.text_area('', placeholder='ℹ info').replace('\n', '  \n')
+        nume = cols[nume_col].text_input('', placeholder='denumire', autocomplete='off', label_visibility='collapsed')
+        info = st.text_area('', placeholder='ℹ info', label_visibility='collapsed').replace('\n', '  \n')
         if nume and timp and st.columns([6, 1])[1].button('➕'):
             if ':' in str(timp):
                 timp = ':'.join(str(timp).split(':')[:-1])
@@ -103,10 +99,6 @@ def add_dialog(freq):
             (supabase.table('tasks').insert({'nume': nume, 'frecventa': freq, 'timp': timp, 'info': info,
                                              'completed': False, 'user': st.query_params['user']}).execute()
             )
-
-            # query = 'INSERT INTO tasks (nume, frecventa, timp, info, completed, "user") VALUES (%s, %s, %s, %s, %s, %s)'  # todo remove
-            # with vericudb() as pool, pool.connection() as conn:
-            #     conn.execute(query, (nume, freq, timp, info, False, st.query_params['user']))
             st.rerun()
 
     add_task()
@@ -120,58 +112,37 @@ def edit_dialog(nume_i, freq, timp_i, info_i):
         nume_col = 0 if freq == 'Azi' else 1
         timp = '.'
         if freq == 'Zilnic':
-            timp = cols[0].time_input('Ora', value=timp_i)
+            timp = cols[0].time_input('', value=timp_i, label_visibility='collapsed')
         elif freq == 'Săptămânal':
-            timp = cols[0].selectbox('Ziua', WEEKDAYS, index=WEEKDAYS.index(timp_i))
+            timp = cols[0].selectbox('', WEEKDAYS, index=WEEKDAYS.index(timp_i), label_visibility='collapsed')
         elif freq == 'Lunar':
-            timp = cols[0].number_input(TIMPI[freq], min_value=1, max_value=31, value=int(timp_i))
+            timp = cols[0].number_input('', min_value=1, max_value=31, value=int(timp_i), label_visibility='collapsed')
         elif freq == 'Anual':
             colss = cols[0].columns(2)
             day = ''.join(c for c in timp_i if c.isdigit())
-            ziua = colss[0].number_input('Ziua', min_value=1, max_value=31, step=1, value=int(day))
-            luna = colss[1].selectbox('Luna', list(calendar.month_abbr)[1:],
+            ziua = colss[0].number_input('', min_value=1, max_value=31, step=1, value=int(day), label_visibility='collapsed')
+            luna = colss[1].selectbox('', list(calendar.month_abbr)[1:], label_visibility='collapsed',
                                       index=list(calendar.month_abbr).index(timp_i[len(day):]) - 1)
             timp = f'{ziua}{luna}'
 
-        nume = cols[nume_col].text_input('Nume', placeholder='nume', autocomplete='off', value=nume_i)
-        info = st.text_area('', placeholder='ℹ info', value=info_i or '').replace('\n', '  \n')
+        nume = cols[nume_col].text_input('', placeholder='nume', autocomplete='off', value=nume_i,
+                                         label_visibility='collapsed')
+        info = st.text_area('', placeholder='ℹ info', value=info_i or '', label_visibility='collapsed').replace('\n', '  \n')
         if nume and timp and st.columns([6, 1])[1].button('✅'):
             if ':' in str(timp):
                 timp = ':'.join(str(timp).split(':')[:-1])
-            # query = """   # todo remove
-            #     UPDATE tasks SET nume = %s, timp = %s, info = %s
-            #     WHERE "user" = %s AND nume = %s AND frecventa = %s AND timp = %s
-            # """
-            # with vericudb() as pool, pool.connection() as conn:
-            #     conn.execute(query, (nume, timp, info, st.query_params['user'], nume_i, freq, timp_i))
 
-            (supabase.table("tasks").update({"nume": nume, "timp": timp, "info": info})
-             .eq("user", st.query_params["user"]).eq("nume", nume_i).eq("frecventa", freq).eq("timp", timp_i)
+            (supabase.table('tasks').update({'nume': nume, 'timp': timp, 'info': info})
+             .eq('user', st.query_params['user']).eq('nume', nume_i).eq('frecventa', freq).eq('timp', timp_i)
              .execute())
 
             st.rerun()
     edit_task()
 
 
-# def delete_task(nume, frecventa, timp):
-#     query = 'DELETE FROM tasks WHERE "user" = %s AND nume = %s AND frecventa = %s AND timp = %s'
-#     with vericudb() as pool, pool.connection() as conn:
-#         conn.execute(query, (st.query_params['user'], nume, frecventa, timp))
-#         conn.commit()
-
-
 def delete_task(nume, frecventa, timp):
     (supabase.table("tasks").delete().eq("user", st.query_params["user"]).eq("nume", nume).eq("frecventa", frecventa)
      .eq("timp", timp).execute())
-
-
-# def check_task(completed, nume, frecventa, timp):
-#     query = 'UPDATE tasks SET completed = %s, last_completed = %s WHERE "user" = %s AND nume = %s AND frecventa = %s AND timp = %s'
-#     with vericudb() as pool:
-#         with pool.connection() as conn:
-#             with conn.cursor() as cursor:
-#                 cursor.execute(query, (completed, NOW if completed else None, st.query_params['user'], nume, frecventa, timp))
-#             conn.commit()
 
 
 def check_task(completed, nume, frecventa, timp):
@@ -185,23 +156,28 @@ def reset_tasks():
     response = supabase.table('tasks').select('nume, frecventa, timp, last_completed').execute()
     tasks = response.data
 
+    st.write(f'NOW.day: {NOW.day}')  # todo remove
+
     for t in tasks:
-        nume = t['nume']
-        frecventa = t['frecventa']
-        timp = t['timp']
         last_completed = pd.to_datetime(t['last_completed'])
         if not last_completed:
             continue
+        nume = t['nume']
+        frecventa = t['frecventa']
+        timp = t['timp']
         reset = False
 
-        if frecventa in ['Azi', 'Zilnic'] and NOW.day != last_completed.day:
-            reset = True
-        elif frecventa == 'Săptămânal' and NOW.isocalendar().week != last_completed.isocalendar().week:
-            reset = True
-        elif frecventa == 'Lunar' and NOW.month != last_completed.month:
-            reset = True
-        elif frecventa == 'Anual' and NOW.year != last_completed.year:
-            reset = True
+        if frecventa in ['Azi', 'Zilnic']:  # todo remove
+            st.write(f'last_completed {nume} ({timp}): {last_completed.day}')  # todo remove
+
+        if frecventa in ['Azi', 'Zilnic']:
+            reset = NOW.day != last_completed.day
+        elif frecventa == 'Săptămânal':
+            reset = NOW.isocalendar().week != last_completed.isocalendar().week
+        elif frecventa == 'Lunar':
+            reset = NOW.month != last_completed.month
+        elif frecventa == 'Anual':
+            reset = NOW.year != last_completed.year
 
         if reset:
             if frecventa == 'Azi':
