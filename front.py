@@ -109,6 +109,7 @@ for t in range(2):
     #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
     #                     args=(row['nume'], freq, row['timp']))
 
+st.write('---')    # todo remove
 st.write('⬇️ before reset')    # todo remove
 utils.reset_tasks()
 st.write('⬆️ after reset')    # todo remove

@@ -17,7 +17,6 @@ from supabase import create_client
 # region Globale
 supabase = create_client(st.secrets['SUPABASE_URL'], st.secrets['SUPABASE_KEY'])
 BASE_PATH = 'E:\🛡️\coding\Vericu'
-NOW = dt.now()
 TODAY = dt.now(ZoneInfo('Europe/Bucharest')).date()
 WEEKDAYS = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică']
 LUNI = {
@@ -156,8 +155,6 @@ def reset_tasks():
     response = supabase.table('tasks').select('nume, frecventa, timp, last_completed').execute()
     tasks = response.data
 
-    st.write(f'NOW: {NOW}')  # todo remove
-
     for t in tasks:
         last_completed = pd.to_datetime(t['last_completed'])
         if not last_completed:
@@ -167,17 +164,15 @@ def reset_tasks():
         timp = t['timp']
         reset = False
 
-        if frecventa in ['Azi', 'Zilnic']:  # todo remove
-            st.write(f'last_completed {nume} ({timp}): {last_completed.day}')  # todo remove
-
+        now = (dt.now() + timedelta(hours=2))
         if frecventa in ['Azi', 'Zilnic']:
-            reset = NOW.day != last_completed.day
+            reset = now.day != last_completed.day
         elif frecventa == 'Săptămânal':
-            reset = NOW.isocalendar().week != last_completed.isocalendar().week
+            reset = now.isocalendar().week != last_completed.isocalendar().week
         elif frecventa == 'Lunar':
-            reset = NOW.month != last_completed.month
+            reset = now.month != last_completed.month
         elif frecventa == 'Anual':
-            reset = NOW.year != last_completed.year
+            reset = now.year != last_completed.year
 
         if reset:
             if frecventa == 'Azi':
