@@ -5,7 +5,7 @@ import utils
 css = '''<style>
     p {font-size: 25px!important;}
     label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
-    .stMainBlockContainer {padding-top:0}
+    .stMainBlockContainer {padding:0 20px}
     .stAppHeader, ._container_gzau3_1, ._viewerBadge_nim44_23 {display: none;}
     
 #     [data-testid="StyledLinkIconContainer"] {left:0; width:100%;}
@@ -39,7 +39,7 @@ for t in range(2):
         cols = st.columns(2 if t == 0 else 3)
         interval = slice(0, 2) if t == 0 else slice(2, 5)
         for i, freq in enumerate(utils.FRECVENTE[interval]):
-            colss = cols[i].columns([1, 9 if t == 0 else 5, 5 if t == 0 else 3])
+            colss = cols[i].columns([1, 6 if t == 0 else 3])
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
             procent = 0 if tasks[freq].empty else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
@@ -56,12 +56,14 @@ for t in range(2):
                     if not timp_prev:
                         timp_prev = timp
                         colss = cols[i].columns([1, 5])
-                        colss[0].markdown(f"#### {titlu}")
-                        colss[1].write('---')
+                        cols[i].markdown(f"#### {titlu}")
+                        # colss[0].markdown(f"#### {titlu}")    # todo remove sau set doar pe desktop?
+                        # colss[1].write('---')    # todo remove sau set doar pe desktop?
                     elif timp != timp_prev:
                         colss = cols[i].columns([1, 5])
-                        colss[0].markdown(f"#### {titlu}")
-                        colss[1].write('---')
+                        cols[i].markdown(f"#### {titlu}")
+                        # colss[0].markdown(f"#### {titlu}")    # todo remove sau set doar pe desktop?
+                        # colss[1].write('---')    # todo remove sau set doar pe desktop?
                         timp_prev = timp
 
                 colss = cols[i].columns([5, 1, 1])
