@@ -5,8 +5,9 @@ import utils
 css = '''<style>
     p {font-size: 25px!important;}
     label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
-
+    .stMainBlockContainer {padding-top:0}
     .stAppHeader, ._container_gzau3_1, ._viewerBadge_nim44_23 {display: none;}
+    
 #     [data-testid="StyledLinkIconContainer"] {left:0; width:100%;}
 #     [data-testid="StyledLinkIconContainer"] span {margin-left:0;}
 #     [data-testid="StyledLinkIconContainer"] a {display: none;}
@@ -38,12 +39,12 @@ for t in range(2):
         cols = st.columns(2 if t == 0 else 3)
         interval = slice(0, 2) if t == 0 else slice(2, 5)
         for i, freq in enumerate(utils.FRECVENTE[interval]):
-            colss = cols[i].columns([1, 9 if t == 0 else 5, 10 if t == 0 else 5])
+            colss = cols[i].columns([1, 9 if t == 0 else 5, 5 if t == 0 else 3])
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
             procent = 0 if tasks[freq].empty else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
             colss[1].subheader(f'{freq_text} [{procent}%]')
-            colss[-1].progress(procent)
+            cols[i].progress(procent)
 
             if freq not in tasks.keys():
                 continue
@@ -109,10 +110,7 @@ for t in range(2):
     #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
     #                     args=(row['nume'], freq, row['timp']))
 
-st.write('---')    # todo remove
-st.write('⬇️ before reset')    # todo remove
 utils.reset_tasks()
-st.write('⬆️ after reset')    # todo remove
 
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
 #     sarbatoriti, upcoming = utils.get_birthdays()
