@@ -66,14 +66,22 @@ for t in range(len(tabs)):
                         cols[i].markdown(f"#### {titlu}")
                         timp_prev = timp
 
-                colss = cols[i].columns([5, 1, 1])
+                colss = cols[i].columns([.5, .5, 4, 1, 1] if freq == 'Azi' else [5, 1, 1])
+                if freq == 'Azi':   # reorder
+                    if task['idx'] > 0:
+                        colss[0].button('⬆️️', key=f'up_{task["nume"]}', on_click=utils.move,
+                                        args=(task['nume'], tasks[freq].iloc[j - 1]['nume'], task['idx'], True))
+                    if task['idx'] < max(tasks[freq]['idx']):
+                        colss[1].button('⬇️', key=f'down_{task["nume"]}', on_click=utils.move,
+                                        args=(task['nume'], tasks[freq].iloc[j + 1]['nume'], task['idx'], False))
                 text = ('' if freq in ['Azi', 'Săptămânal'] else f"({task['timp']}) ") + f"{task['nume']}"
-                colss[0].checkbox(text, value=task['completed'], on_change=utils.check_task,
+                colss[2 if freq == 'Azi' else 0].checkbox(text, value=task['completed'], on_change=utils.check_task,
                                   args=(True, task['nume'], freq, task['timp']), help=task['info'])
-                colss[1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.edit_dialog,
+                colss[3 if freq == 'Azi' else 1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}',
+                                on_click=utils.edit_dialog,
                                 args=(task['nume'], freq, task['timp'], task['info']))
-                colss[2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.delete_task,
-                                args=(task['nume'], freq, task['timp']))
+                colss[4 if freq == 'Azi' else 2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}',
+                                on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
 
             if not (tasks[freq].empty or tasks[f'✓{freq}'].empty):
                 cols[i].write('---')

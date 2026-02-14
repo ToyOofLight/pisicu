@@ -54,7 +54,9 @@ def get_tasks():
         if freq == 'Lunar':
             freq_df['timp'] = freq_df['timp'].astype(int)
             freq_df.sort_values(by=['timp'], inplace=True)
-        elif freq != 'Azi':
+        elif freq == 'Azi':
+            freq_df = freq_df.sort_values(by=['idx']).reset_index(drop=True)
+        else:
             if freq == 'Zilnic':
                 freq_df['temp'] = pd.to_datetime(freq_df['timp'], format='%H:%M').dt.time
             elif freq == 'Săptămânal':
@@ -63,9 +65,10 @@ def get_tasks():
                 freq_df['temp'] = pd.to_datetime(freq_df['timp'] + '2026', format='%d%b%Y')
             freq_df.sort_values(by=['temp'], inplace=True)
             freq_df.drop(columns=['temp'], inplace=True)
-
-        taskuri[freq] = freq_df[tasks['completed'].isin([False, None])]
-        taskuri[f'✓{freq}'] = freq_df[tasks['completed'] == True]
+        taskuri[freq] = freq_df[freq_df['completed'].isin([False, None])]
+        if freq == 'Azi':
+            st.session_state['taskuri_azi'] = len(taskuri['Azi'])
+        taskuri[f'✓{freq}'] = freq_df[freq_df['completed'] == True]
 
     return taskuri
 
@@ -96,9 +99,11 @@ def add_dialog(freq):
                 if ':' in str(timp):
                     timp = ':'.join(str(timp).split(':')[:-1])
 
-                (supabase.table('tasks').insert({'nume': nume.strip(), 'frecventa': freq, 'timp': timp, 'info': info,
-                                                 'completed': False, 'user': st.query_params['user']}).execute()
-                )
+                insert_data = {'nume': nume.strip(), 'frecventa': freq, 'timp': timp, 'info': info, 'completed': False,
+                               'user': st.query_params['user']}
+                if freq == 'Azi':
+                    insert_data['idx'] = st.session_state['taskuri_azi']
+                (supabase.table('tasks').insert(insert_data).execute())
                 st.rerun()
 
     add_task()
@@ -140,22 +145,36 @@ def edit_dialog(nume_i, freq, timp_i, info_i):
     edit_task()
 
 
+def move(task, vecin, idx, up):
+    data = {'idx': int(idx - 1 if up else idx + 1)}
+    (supabase.table('tasks').update(data).eq('user', st.query_params['user']).eq('nume', task).eq('frecventa', 'Azi').execute())
+    data = {'idx': int(idx)}
+    (supabase.table('tasks').update(data).eq('user', st.query_params['user']).eq('nume', vecin).eq('frecventa', 'Azi').execute())
+
+
+def reindex_tasks():
+    rows = (supabase.table('tasks').select('nume, idx').eq('user', st.query_params['user']).eq('frecventa', 'Azi').not_.is_('idx', 'null').order('idx').execute()).data
+    for new_idx, row in enumerate(rows):
+        supabase.table('tasks').update({'idx': new_idx}).eq('idx', row['idx']).execute()
+
+
 def delete_task(nume, frecventa, timp):
-    (supabase.table("tasks").delete().eq("user", st.query_params["user"]).eq("nume", nume).eq("frecventa", frecventa)
-     .eq("timp", timp).execute())
+    (supabase.table('tasks').delete().eq('user', st.query_params['user']).eq('nume', nume).eq('frecventa', frecventa)
+     .eq('timp', timp).execute())
+    reindex_tasks()
 
 
 def check_task(completed, nume, frecventa, timp):
-    data = {"completed": completed, "last_completed": dt.now(timezone.utc).isoformat() if completed else None}
-    (supabase.table("tasks").update(data).eq("user", st.query_params["user"]).eq("nume", nume)
-     .eq("frecventa", frecventa).eq("timp", timp).execute()
-    )
+    data = {'completed': completed, 'idx': None if completed else st.session_state['taskuri_azi'],
+            'last_completed': (dt.now(timezone.utc) + timedelta(hours=2)).isoformat() if completed else None}
+    (supabase.table('tasks').update(data).eq('user', st.query_params['user']).eq('nume', nume)
+     .eq('frecventa', frecventa).eq('timp', timp).execute())
+    if completed:
+        reindex_tasks()
 
 
 def reset_tasks():
-    response = supabase.table('tasks').select('nume, frecventa, timp, last_completed').execute()
-    tasks = response.data
-
+    tasks = supabase.table('tasks').select('nume, frecventa, timp, last_completed').execute().data
     for t in tasks:
         last_completed = pd.to_datetime(t['last_completed'])
         if not last_completed:
