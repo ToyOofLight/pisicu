@@ -69,8 +69,7 @@ for t in range(len(tabs)):
                 colss = cols[i].columns([.5, .5, 4, 1, 1] if freq == 'Azi' else [5, 1, 1])
                 if freq == 'Azi':   # reorder
                     if task['idx'] > 0:
-                        colss[0].button('⬆️️', key=f'up_{task["nume"]}', on_click=utils.move,
-                                        args=(task['nume'], tasks[freq].iloc[j - 1]['nume'], task['idx'], True))
+                        colss[0].button('⬆️️', key=f'up_{task["nume"]}', on_click=utils.move, args=(task['nume'], tasks[freq].iloc[j - 1]['nume'], task['idx'], True))
                     if task['idx'] < max(tasks[freq]['idx']):
                         colss[1].button('⬇️', key=f'down_{task["nume"]}', on_click=utils.move,
                                         args=(task['nume'], tasks[freq].iloc[j + 1]['nume'], task['idx'], False))
