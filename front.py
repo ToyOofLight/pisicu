@@ -43,10 +43,13 @@ for t in range(len(tabs)):
             colss = cols[i].columns([1, 6])
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
-            procent = 0 if tasks[freq].empty else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
-            colss[1].subheader(f'{freq_text} [{procent}%]')
-            cols[i].progress(procent)
 
+            procent = 100
+            if not tasks[freq].empty:
+                procent = 0 if all(tasks[f].empty for f in [freq, f'✓{freq}']) else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
+            if not (tasks[freq].empty and tasks[f'✓{freq}'].empty):
+                colss[1].subheader(f'{freq_text} [{procent}%]')
+                cols[i].progress(procent)
             if freq not in tasks.keys():
                 continue
 
@@ -72,7 +75,8 @@ for t in range(len(tabs)):
                 colss[2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.delete_task,
                                 args=(task['nume'], freq, task['timp']))
 
-            cols[i].write('---')
+            if not (tasks[freq].empty or tasks[f'✓{freq}'].empty):
+                cols[i].write('---')
             for j, task in tasks[f'✓{freq}'].iterrows():  # ✅ completate
                 colss = cols[i].columns([5, 1, 1])
                 text = ('' if freq == 'Azi' else f"({task['timp']}) ") + f"{task['nume']}"

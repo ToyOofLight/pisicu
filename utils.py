@@ -96,7 +96,7 @@ def add_dialog(freq):
                 if ':' in str(timp):
                     timp = ':'.join(str(timp).split(':')[:-1])
 
-                (supabase.table('tasks').insert({'nume': nume, 'frecventa': freq, 'timp': timp, 'info': info,
+                (supabase.table('tasks').insert({'nume': nume.strip(), 'frecventa': freq, 'timp': timp, 'info': info,
                                                  'completed': False, 'user': st.query_params['user']}).execute()
                 )
                 st.rerun()
@@ -132,7 +132,7 @@ def edit_dialog(nume_i, freq, timp_i, info_i):
             if ':' in str(timp):
                 timp = ':'.join(str(timp).split(':')[:-1])
 
-            (supabase.table('tasks').update({'nume': nume, 'timp': timp, 'info': info})
+            (supabase.table('tasks').update({'nume': nume.strip(), 'timp': timp, 'info': info})
              .eq('user', st.query_params['user']).eq('nume', nume_i).eq('frecventa', freq).eq('timp', timp_i)
              .execute())
 
