@@ -33,13 +33,14 @@ cols = st.columns([1, 5, 3, 1])
 
 tasks = utils.get_tasks()
 timp_prev = ''
-tabs = st.tabs(['Azi + Zilnic', 'Săptămânal, Lunar, Anual'])
-for t in range(2):
+tabs = st.tabs(['Azi + Zilnic', 'Săptămânal + Lunar', 'Anual'])
+
+for t in range(len(tabs)):
     with tabs[t]:
-        cols = st.columns(2 if t == 0 else 3)
-        interval = slice(0, 2) if t == 0 else slice(2, 5)
+        cols = st.columns(2 if t != 2 else 1)
+        interval = slice(0, 2) if t == 0 else slice(2, 4) if t == 1 else slice(4, 5)
         for i, freq in enumerate(utils.FRECVENTE[interval]):
-            colss = cols[i].columns([1, 6 if t == 0 else 3])
+            colss = cols[i].columns([1, 6])
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
             procent = 0 if tasks[freq].empty else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
@@ -57,13 +58,9 @@ for t in range(2):
                         timp_prev = timp
                         colss = cols[i].columns([1, 5])
                         cols[i].markdown(f"#### {titlu}")
-                        # colss[0].markdown(f"#### {titlu}")    # todo remove sau set doar pe desktop?
-                        # colss[1].write('---')    # todo remove sau set doar pe desktop?
                     elif timp != timp_prev:
                         colss = cols[i].columns([1, 5])
                         cols[i].markdown(f"#### {titlu}")
-                        # colss[0].markdown(f"#### {titlu}")    # todo remove sau set doar pe desktop?
-                        # colss[1].write('---')    # todo remove sau set doar pe desktop?
                         timp_prev = timp
 
                 colss = cols[i].columns([5, 1, 1])
@@ -113,6 +110,11 @@ for t in range(2):
     #                     args=(row['nume'], freq, row['timp']))
 
 utils.reset_tasks()
+
+st.write(f'TODAY: {utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))}')   # todo remove
+st.write(f'TODAY: {utils.TODAY}')   # todo remove
+st.write(f'dt.now(): {utils.dt.now()}')   # todo remove
+st.write(f'dt.now() + timedelta(hours=2): {utils.dt.now() + utils.timedelta(hours=2)}')   # todo remove
 
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
 #     sarbatoriti, upcoming = utils.get_birthdays()

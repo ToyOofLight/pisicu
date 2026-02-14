@@ -91,14 +91,15 @@ def add_dialog(freq):
 
         nume = cols[nume_col].text_input('', placeholder='denumire', autocomplete='off', label_visibility='collapsed')
         info = st.text_area('', placeholder='ℹ info', label_visibility='collapsed').replace('\n', '  \n')
-        if nume and timp and st.columns([6, 1])[1].button('➕'):
-            if ':' in str(timp):
-                timp = ':'.join(str(timp).split(':')[:-1])
+        if st.columns([6, 1])[1].button('➕'):
+            if nume and timp:
+                if ':' in str(timp):
+                    timp = ':'.join(str(timp).split(':')[:-1])
 
-            (supabase.table('tasks').insert({'nume': nume, 'frecventa': freq, 'timp': timp, 'info': info,
-                                             'completed': False, 'user': st.query_params['user']}).execute()
-            )
-            st.rerun()
+                (supabase.table('tasks').insert({'nume': nume, 'frecventa': freq, 'timp': timp, 'info': info,
+                                                 'completed': False, 'user': st.query_params['user']}).execute()
+                )
+                st.rerun()
 
     add_task()
 
