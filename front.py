@@ -3,7 +3,9 @@ import streamlit as st
 import utils
 
 css = '''<style>
+    button[kind="secondary"] { border: none!important; background-color: transparent; }
     p {font-size: 25px!important;}
+    button[data-baseweb="tab"] p {font-size:50px!important;}    
     label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
     .stMainBlockContainer {padding:0 20px}
     .stAppHeader, ._container_gzau3_1, ._viewerBadge_nim44_23 {display: none;}
@@ -14,7 +16,7 @@ css = '''<style>
 #     h3 [data-testid="stHeaderActionElements"] {display :none;}
 #     .stMainBlockContainer { padding-top:0; }
 #
-#     div.stButton > button:first-child { border: none; background-color: transparent; }
+    # div.stButton > button:first-child { border: none; background-color: transparent; }
 #     .stColumn button p { font-size: 20px; }
 #     button:focus-visible { box-shadow:none!important; }
 '''
