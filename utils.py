@@ -174,7 +174,8 @@ def check_task(completed, nume, frecventa, timp):
 
 
 def reset_tasks():
-    tasks = supabase.table('tasks').select('nume, frecventa, timp, completed, last_completed').eq('completed', True).execute().data
+    tasks = (supabase.table('tasks').select('nume, frecventa, timp, completed, last_completed').eq('completed', True)
+             .execute().data)
     for t in tasks:
         reset = False
         last_completed = pd.to_datetime(t['last_completed'])
@@ -183,8 +184,6 @@ def reset_tasks():
         now = (dt.now() + timedelta(hours=2))
         if frecventa in ['Azi', 'Zilnic']:
             reset = now.day != last_completed.day
-            # if frecventa == 'Azi' and not t['completed']:   # carry uncompleted de Azi pe maine
-            #     reset = False # todo remove?
         elif frecventa == 'Săptămânal':
             reset = now.isocalendar().week != last_completed.isocalendar().week
         elif frecventa == 'Lunar':
@@ -194,9 +193,8 @@ def reset_tasks():
 
         if reset:
             if frecventa == 'Azi':
-                supabase.table('tasks').delete().eq('frecventa', frecventa).execute()
-
+                (supabase.table('tasks').delete().eq('user', st.query_params['user']).eq('nume', t['nume'])
+                 .eq('frecventa', 'Azi').execute())
             else:
-                (supabase.table('tasks').update({'completed': False}).eq('nume', t['nume']).eq('frecventa', frecventa)
-                    .eq('timp', t['timp']).execute()
-                )
+                (supabase.table('tasks').update({'completed': False}).eq('user', st.query_params['user'])
+                 .eq('nume', t['nume']).eq('frecventa', frecventa).eq('timp', t['timp']).execute())
