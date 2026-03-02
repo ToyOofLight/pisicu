@@ -33,6 +33,7 @@ cols = st.columns([1, 5, 3, 1])
 #         with cols[0]:
 #             utils.display_rank()
 
+utils.reset_tasks()
 tasks = utils.get_tasks()
 timp_prev = ''
 tabs = st.tabs(['Azi + Zilnic', 'Săptămânal + Lunar', 'Anual'])
@@ -124,8 +125,6 @@ for t in range(len(tabs)):
     #                     args=(row['nume'], freq, row['timp'], row['info']))
     #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
     #                     args=(row['nume'], freq, row['timp']))
-
-utils.reset_tasks()
 
 st.write(f'TODAY: {utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))}')   # todo remove
 st.write(f'TODAY: {utils.TODAY}')   # todo remove
