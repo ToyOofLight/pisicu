@@ -78,12 +78,13 @@ for t in range(len(tabs)):
                         colss[1].button('⬇️', key=f'down_{task["nume"]}', on_click=utils.move,
                                         args=(task['nume'], tasks[freq].iloc[j + 1]['nume'], task['idx'], False))
                 text = ('' if freq in ['Azi', 'Săptămânal'] else f"({task['timp']}) ") + f"{task['nume']}"
+                text = f'*{text}*' if task['one_time'] else text
                 colss[2 if freq == 'Azi' else 0].checkbox(text, value=task['completed'], on_change=utils.check_task,
                                                       args=(True, task['nume'], freq, task['timp']), help=task['info'],
                                                       key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
                 colss[3 if freq == 'Azi' else 1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}',
                                 on_click=utils.edit_dialog,
-                                args=(task['nume'], freq, task['timp'], task['info']))
+                                args=(task['nume'], freq, task['timp'], task['info'], task['one_time']))
                 colss[4 if freq == 'Azi' else 2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}',
                                 on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
 
@@ -92,6 +93,7 @@ for t in range(len(tabs)):
             for j, task in tasks[f'✓{freq}'].iterrows():  # ✅ completate
                 colss = cols[i].columns([5, 1, 1])
                 text = ('' if freq == 'Azi' else f"({task['timp']}) ") + f"{task['nume']}"
+                text = f'*{text}*' if task['one_time'] else text
                 colss[0].checkbox(f'~~{text}~~', value=task['completed'], on_change=utils.check_task,
                                   args=(False, task['nume'], freq, task['timp']), help=task['info'],
                                   key=f'check_{freq}_{task["nume"]}_{task["timp"]}')

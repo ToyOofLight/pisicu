@@ -94,13 +94,15 @@ def add_dialog(freq):
 
         nume = cols[nume_col].text_input('', placeholder='denumire', autocomplete='off', label_visibility='collapsed')
         info = st.text_area('', placeholder='ℹ info', label_visibility='collapsed').replace('\n', '  \n')
-        if st.columns([6, 1])[1].button('➕'):
+        cols = st.columns([4, 1])
+        one_time = cols[0].checkbox('one-time')
+        if cols[1].button('➕'):
             if nume and timp:
                 if ':' in str(timp):
                     timp = ':'.join(str(timp).split(':')[:-1])
 
                 insert_data = {'nume': nume.strip(), 'frecventa': freq, 'timp': timp, 'info': info, 'completed': False,
-                               'user': st.query_params['user']}
+                               'one_time': one_time, 'user': st.query_params['user']}
                 if freq == 'Azi':
                     insert_data['idx'] = st.session_state['taskuri_azi']
                 (supabase.table('tasks').insert(insert_data).execute())
@@ -109,7 +111,7 @@ def add_dialog(freq):
     add_task()
 
 
-def edit_dialog(nume_i, freq, timp_i, info_i):
+def edit_dialog(nume_i, freq, timp_i, info_i, one_time_i):
     @st.dialog(f'✏️ Edit task {freq}:\n\n{nume_i}' + ('' if freq == 'Azi' else f' ({timp_i})'))
     def edit_task():
         coloane = 1 if freq == 'Azi' else 2 if freq in ['Azi', 'Anual'] else [1, 2.4]
@@ -133,11 +135,13 @@ def edit_dialog(nume_i, freq, timp_i, info_i):
         nume = cols[nume_col].text_input('', placeholder='nume', autocomplete='off', value=nume_i,
                                          label_visibility='collapsed')
         info = st.text_area('', placeholder='ℹ info', value=info_i or '', label_visibility='collapsed').replace('\n', '  \n')
-        if nume and timp and st.columns([6, 1])[1].button('✅'):
+        cols = st.columns([4, 1])
+        one_time = cols[0].checkbox('one-time', value=one_time_i)
+        if nume and timp and cols[1].button('✅'):
             if ':' in str(timp):
                 timp = ':'.join(str(timp).split(':')[:-1])
 
-            (supabase.table('tasks').update({'nume': nume.strip(), 'timp': timp, 'info': info})
+            (supabase.table('tasks').update({'nume': nume.strip(), 'timp': timp, 'info': info, 'one_time': one_time})
              .eq('user', st.query_params['user']).eq('nume', nume_i).eq('frecventa', freq).eq('timp', timp_i)
              .execute())
 
@@ -174,8 +178,8 @@ def check_task(completed, nume, frecventa, timp):
 
 
 def reset_tasks():
-    tasks = (supabase.table('tasks').select('nume, frecventa, timp, completed, last_completed').eq('completed', True)
-             .execute().data)
+    tasks = (supabase.table('tasks').select('nume, frecventa, timp, completed, last_completed', 'one_time')
+             .eq('completed', True).execute().data)
     for t in tasks:
         reset = False
         last_completed = pd.to_datetime(t['last_completed'])
@@ -192,7 +196,7 @@ def reset_tasks():
             reset = now.year != last_completed.year
 
         if reset:
-            if frecventa == 'Azi':
+            if frecventa == 'Azi' or t['one_time']:
                 (supabase.table('tasks').delete().eq('user', st.query_params['user']).eq('nume', t['nume'])
                  .eq('frecventa', 'Azi').execute())
             else:
