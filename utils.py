@@ -95,7 +95,9 @@ def add_dialog(freq):
         nume = cols[nume_col].text_input('', placeholder='denumire', autocomplete='off', label_visibility='collapsed')
         info = st.text_area('', placeholder='ℹ info', label_visibility='collapsed').replace('\n', '  \n')
         cols = st.columns([4, 1])
-        one_time = cols[0].checkbox('one-time')
+        one_time = False
+        if freq not in ['Azi', 'Zilnic']:
+            one_time = cols[0].checkbox('one-time')
         if cols[1].button('➕'):
             if nume and timp:
                 if ':' in str(timp):
@@ -136,7 +138,9 @@ def edit_dialog(nume_i, freq, timp_i, info_i, one_time_i):
                                          label_visibility='collapsed')
         info = st.text_area('', placeholder='ℹ info', value=info_i or '', label_visibility='collapsed').replace('\n', '  \n')
         cols = st.columns([4, 1])
-        one_time = cols[0].checkbox('one-time', value=one_time_i)
+        one_time = False
+        if freq not in ['Azi', 'Zilnic']:
+            one_time = cols[0].checkbox('one-time', value=one_time_i)
         if nume and timp and cols[1].button('✅'):
             if ':' in str(timp):
                 timp = ':'.join(str(timp).split(':')[:-1])
