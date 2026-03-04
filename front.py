@@ -5,7 +5,12 @@ import utils
 css = '''<style>
     button[kind="secondary"] { border: none!important; background-color: transparent; }
     p {font-size: 25px!important;}
-    button[data-baseweb="tab"] p {font-size:50px!important;}    
+    [data-baseweb="tab"] {margin-right: 30px}
+    .stMainBlockContainer {padding:0!important}
+    [data-baseweb="tab-list"] .st-bd, [data-baseweb="tab-list"] .st-bn:hover {color: blue}
+    button[data-baseweb="tab"] p {font-size:50px!important;}
+    .st-c1 {background-color: green!important; border-color: green!important;}
+    div[data-baseweb="tab-highlight"] {background-color: blue!important;}
     label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
     .stMainBlockContainer {padding:0 20px}
     .stAppHeader, ._container_gzau3_1, ._viewerBadge_nim44_23 {display: none;}
@@ -36,7 +41,7 @@ cols = st.columns([1, 5, 3, 1])
 utils.reset_tasks()
 tasks = utils.get_tasks()
 timp_prev = ''
-tabs = st.tabs(['Azi + Zilnic', 'Săptămânal + Lunar', 'Anual'])
+tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
 
 for t in range(len(tabs)):
     with tabs[t]:
@@ -48,9 +53,9 @@ for t in range(len(tabs)):
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
 
             procent = 100
-            if not tasks[freq].empty:
+            if tasks and not tasks[freq].empty:
                 procent = 0 if all(tasks[f].empty for f in [freq, f'✓{freq}']) else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
-            if not (tasks[freq].empty and tasks[f'✓{freq}'].empty):
+            if tasks and not (tasks[freq].empty and tasks[f'✓{freq}'].empty):
                 colss[1].subheader(f'{freq_text} [{procent}%]')
                 cols[i].progress(procent)
             if freq not in tasks.keys():
@@ -98,7 +103,7 @@ for t in range(len(tabs)):
                                   args=(False, task['nume'], freq, task['timp']), help=task['info'],
                                   key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
                 colss[1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.edit_dialog,
-                                args=(task['nume'], freq, task['timp'], task['info']))
+                                args=(task['nume'], freq, task['timp'], task['info'], task['one_time']))
                 colss[2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.delete_task,
                                 args=(task['nume'], freq, task['timp']))
 
@@ -128,10 +133,11 @@ for t in range(len(tabs)):
     #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
     #                     args=(row['nume'], freq, row['timp']))
 
-st.write(f'TODAY: {utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))}')   # todo remove
-st.write(f'TODAY: {utils.TODAY}')   # todo remove
-st.write(f'dt.now(): {utils.dt.now()}')   # todo remove
-st.write(f'dt.now() + timedelta(hours=2): {utils.dt.now() + utils.timedelta(hours=2)}')   # todo remove
+if st.query_params['user'] == 'Elvin':
+    st.write(f'TODAY: {utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))}')   # todo remove
+    st.write(f'TODAY: {utils.TODAY}')   # todo remove
+    st.write(f'dt.now(): {utils.dt.now()}')   # todo remove
+    st.write(f'dt.now() + timedelta(hours=2): {utils.dt.now() + utils.timedelta(hours=2)}')   # todo remove
 
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
 #     sarbatoriti, upcoming = utils.get_birthdays()

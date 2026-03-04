@@ -44,7 +44,7 @@ def get_tasks():
     response = supabase.table('tasks').select('*').eq('user', st.query_params['user']).execute()
     tasks = pd.DataFrame(response.data)
     if tasks.empty:
-        return tasks
+        return {}
 
     taskuri = {}
     for freq in FRECVENTE:
@@ -106,7 +106,7 @@ def add_dialog(freq):
                 insert_data = {'nume': nume.strip(), 'frecventa': freq, 'timp': timp, 'info': info, 'completed': False,
                                'one_time': one_time, 'user': st.query_params['user']}
                 if freq == 'Azi':
-                    insert_data['idx'] = st.session_state['taskuri_azi']
+                    insert_data['idx'] = st.session_state.get('taskuri_azi', 0)
                 (supabase.table('tasks').insert(insert_data).execute())
                 st.rerun()
 
@@ -163,7 +163,7 @@ def move(task, vecin, idx, up):
 def reindex_tasks():
     rows = (supabase.table('tasks').select('nume, idx').eq('user', st.query_params['user']).eq('frecventa', 'Azi').not_.is_('idx', 'null').order('idx').execute()).data
     for new_idx, row in enumerate(rows):
-        supabase.table('tasks').update({'idx': new_idx}).eq('idx', row['idx']).execute()
+        supabase.table('tasks').update({'idx': new_idx}).eq('idx', row['idx']).eq('user', st.query_params['user']).execute()
 
 
 def delete_task(nume, frecventa, timp):
@@ -181,6 +181,7 @@ def check_task(completed, nume, frecventa, timp):
         reindex_tasks()
 
 
+@st.cache_data(ttl=60)
 def reset_tasks():
     tasks = (supabase.table('tasks').select('nume, frecventa, timp, completed, last_completed', 'one_time')
              .eq('completed', True).execute().data)
@@ -201,8 +202,7 @@ def reset_tasks():
 
         if reset:
             if frecventa == 'Azi' or t['one_time']:
-                (supabase.table('tasks').delete().eq('user', st.query_params['user']).eq('nume', t['nume'])
-                 .eq('frecventa', 'Azi').execute())
+                (supabase.table('tasks').delete().eq('nume', t['nume']).eq('frecventa', 'Azi').execute())
             else:
-                (supabase.table('tasks').update({'completed': False}).eq('user', st.query_params['user'])
-                 .eq('nume', t['nume']).eq('frecventa', frecventa).eq('timp', t['timp']).execute())
+                (supabase.table('tasks').update({'completed': False}).eq('nume', t['nume']).eq('frecventa', frecventa)
+                 .eq('timp', t['timp']).execute())
