@@ -39,7 +39,7 @@ cols = st.columns([1, 5, 3, 1])
 #             utils.display_rank()
 
 utils.reset_tasks()
-tasks = utils.get_tasks()
+tasks = utils.get_tasks() or {}
 timp_prev = ''
 tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
 
@@ -58,6 +58,8 @@ for t in range(len(tabs)):
             if tasks and not (tasks[freq].empty and tasks[f'✓{freq}'].empty):
                 colss[1].subheader(f'{freq_text} [{procent}%]')
                 cols[i].progress(procent)
+            else:
+                colss[1].subheader(freq_text)
             if freq not in tasks.keys():
                 continue
 
