@@ -42,12 +42,15 @@ utils.reset_tasks()
 tasks = utils.get_tasks() or {}
 timp_prev = ''
 tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
+timpi = {'Săptămânal': utils.TODAY.weekday(), 'Lunar': utils.TODAY.day}
 
 for t in range(len(tabs)):
     with tabs[t]:
         cols = st.columns(2 if t != 2 else 1)
         interval = slice(0, 2) if t == 0 else slice(2, 4) if t == 1 else slice(4, 5)
         for i, freq in enumerate(utils.FRECVENTE[interval]):
+            st.session_state['delimitat_start'], st.session_state['delimitat_end'] = False, False
+
             colss = cols[i].columns([1, 6])
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
@@ -64,16 +67,27 @@ for t in range(len(tabs)):
                 continue
 
             for j, task in tasks[freq].iterrows():
-                if freq in ['Săptămânal', 'Anual']:
+                if freq in ['Săptămânal', 'Lunar']:
+                    task_timp = utils.WEEKDAYS.index(task['timp']) if freq == 'Săptămânal' else task['timp']
+                    if not st.session_state['delimitat_start'] and task_timp == timpi[freq]:
+                        cols[i].write('---')
+                        st.session_state['delimitat_start'] = True
+                    if not st.session_state['delimitat_end'] and task_timp > timpi[freq]:
+                        cols[i].write(f'---')
+                        st.session_state['delimitat_end'] = True
+
+                if freq in ['Săptămânal', 'Lunar', 'Anual']:
                     timp = ''.join([c for c in task['timp'] if not c.isnumeric()]) if freq == 'Anual' else task['timp']
                     titlu = utils.LUNI[timp] if freq == 'Anual' else timp
                     if not timp_prev:
                         timp_prev = timp
                         colss = cols[i].columns([1, 5])
-                        cols[i].markdown(f"#### {titlu}")
+                        if freq != 'Lunar':
+                            cols[i].markdown(f"#### {titlu}")
                     elif timp != timp_prev:
                         colss = cols[i].columns([1, 5])
-                        cols[i].markdown(f"#### {titlu}")
+                        if freq != 'Lunar':
+                            cols[i].markdown(f"#### {titlu}")
                         timp_prev = timp
 
                 colss = cols[i].columns([.5, .5, 4, 1, 1] if freq == 'Azi' else [5, 1, 1])
@@ -96,18 +110,18 @@ for t in range(len(tabs)):
                                 on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
 
             if not (tasks[freq].empty or tasks[f'✓{freq}'].empty):
-                cols[i].write('---')
-            for j, task in tasks[f'✓{freq}'].iterrows():  # ✅ completate
-                colss = cols[i].columns([5, 1, 1])
-                text = ('' if freq == 'Azi' else f"({task['timp']}) ") + f"{task['nume']}"
-                text = f'*{text}*' if task['one_time'] else text
-                colss[0].checkbox(f'~~{text}~~', value=task['completed'], on_change=utils.check_task,
-                                  args=(False, task['nume'], freq, task['timp']), help=task['info'],
-                                  key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
-                colss[1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.edit_dialog,
-                                args=(task['nume'], freq, task['timp'], task['info'], task['one_time']))
-                colss[2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.delete_task,
-                                args=(task['nume'], freq, task['timp']))
+                with cols[i].expander('Completate'):
+                    for j, task in tasks[f'✓{freq}'].iterrows():  # ✅ completate
+                        colss = st.columns([5, 1, 1])
+                        text = ('' if freq == 'Azi' else f"({task['timp']}) ") + f"{task['nume']}"
+                        text = f'*{text}*' if task['one_time'] else text
+                        colss[0].checkbox(f'~~{text}~~', value=task['completed'], on_change=utils.check_task,
+                                          args=(False, task['nume'], freq, task['timp']), help=task['info'],
+                                          key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
+                        colss[1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.edit_dialog,
+                                        args=(task['nume'], freq, task['timp'], task['info'], task['one_time']))
+                        colss[2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.delete_task,
+                                        args=(task['nume'], freq, task['timp']))
 
     # freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
     # cols[i].button(f'➕{" ‎ "*2}{freq_text}', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
