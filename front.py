@@ -67,13 +67,13 @@ for t in range(len(tabs)):
                 continue
 
             for j, task in tasks[freq].iterrows():
-                # region Delimitare azi
+                # region Delimitare Prezent
                 if freq in ['Zilnic', 'Săptămânal', 'Lunar', 'Anual']:
                     task_timp = task['timp']
                     if freq == 'Zilnic':
-                        task_timp = utils.dt.combine(utils.TODAY, utils.dt.strptime(task_timp, "%H:%M").time())
+                        task_timp = utils.dt.combine(utils.TODAY, utils.dt.strptime(task_timp, '%H:%M').time())
                         task_timp = task_timp.replace(tzinfo=utils.ZoneInfo("Europe/Bucharest"))
-                    if freq == 'Săptămânal':
+                    elif freq == 'Săptămânal':
                         task_timp = utils.WEEKDAYS.index(task_timp)
                     elif freq == 'Anual':
                         task_timp = utils.dt.strptime(f"{task_timp}{utils.dt.now().year}", '%d%b%Y').date()
