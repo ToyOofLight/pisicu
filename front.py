@@ -4,26 +4,16 @@ import utils
 
 css = '''<style>
     button[kind="secondary"] { border: none!important; background-color: transparent; }
-    p {font-size: 25px!important;}
+    p {font-size: 30px!important;}
     [data-baseweb="tab"] {margin-right: 30px}
-    .stMainBlockContainer {padding:0!important}
+    .stMainBlockContainer {padding:1!important}
     [data-baseweb="tab-list"] .st-bd, [data-baseweb="tab-list"] .st-bn:hover {color: blue}
-    button[data-baseweb="tab"] p {font-size:50px!important;}
+    button[data-baseweb="tab"] p {font-size:60px!important;}
     .st-c1 {background-color: green!important; border-color: green!important;}
     div[data-baseweb="tab-highlight"] {background-color: blue!important;}
     label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
     .stMainBlockContainer {padding:0 20px}
     .stAppHeader, ._container_gzau3_1, ._viewerBadge_nim44_23 {display: none;}
-    
-#     [data-testid="StyledLinkIconContainer"] {left:0; width:100%;}
-#     [data-testid="StyledLinkIconContainer"] span {margin-left:0;}
-#     [data-testid="StyledLinkIconContainer"] a {display: none;}
-#     h3 [data-testid="stHeaderActionElements"] {display :none;}
-#     .stMainBlockContainer { padding-top:0; }
-#
-    # div.stButton > button:first-child { border: none; background-color: transparent; }
-#     .stColumn button p { font-size: 20px; }
-#     button:focus-visible { box-shadow:none!important; }
 '''
 
 # region Specifications
@@ -90,8 +80,9 @@ for t in range(len(tabs)):
                         cols[i].write('---')
                         st.session_state['delimitat_start'] = True
                     if not st.session_state['delimitat_end'] and task_timp > timpi[freq]:
-                        cols[i].write(f'---')
-                        st.session_state['delimitat_end'] = True
+                        if not (freq == 'Lunar' and not st.session_state['delimitat_start']):
+                            cols[i].write(f'---')
+                            st.session_state['delimitat_end'] = True
                 # endregion
 
                 if freq in ['Săptămânal', 'Lunar', 'Anual']:
