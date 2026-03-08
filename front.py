@@ -54,13 +54,21 @@ for t in range(len(tabs)):
 
             colss = cols[i].columns([1, 6])
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
+            in_paranteza = ''
+            if freq == 'Zilnic':
+                in_paranteza = f' ({utils.dt.now().strftime('%H:%M')})'
+            if freq == 'Săptămânal':
+                in_paranteza = f' ({utils.WEEKDAYS[utils.TODAY.weekday()]})'
+            if freq in ['Lunar', 'Anual']:
+                in_paranteza = f' ({utils.dt.now().day}{utils.dt.now().strftime('%b')})'
+            freq_text += in_paranteza
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
 
             procent = 100
             if tasks and not tasks[freq].empty:
                 procent = 0 if all(tasks[f].empty for f in [freq, f'✓{freq}']) else int(len(tasks[f'✓{freq}']) * 100 / (len(tasks[freq]) + len(tasks[f'✓{freq}'])))
             if tasks and not (tasks[freq].empty and tasks[f'✓{freq}'].empty):
-                colss[1].subheader(f'{freq_text} [{procent}%]')
+                colss[1].subheader(f'{freq_text} {procent}%')
                 cols[i].progress(procent)
             else:
                 colss[1].subheader(freq_text)
