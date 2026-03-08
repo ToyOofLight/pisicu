@@ -42,7 +42,7 @@ utils.reset_tasks()
 tasks = utils.get_tasks() or {}
 timp_prev = ''
 tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
-timpi = {'Săptămânal': utils.TODAY.weekday(), 'Lunar': utils.TODAY.day}
+timpi = {'Zilnic': utils.TODAY_TIME, 'Săptămânal': utils.TODAY.weekday(), 'Lunar': utils.TODAY.day, 'Anual': utils.TODAY}
 
 for t in range(len(tabs)):
     with tabs[t]:
@@ -67,14 +67,23 @@ for t in range(len(tabs)):
                 continue
 
             for j, task in tasks[freq].iterrows():
-                if freq in ['Săptămânal', 'Lunar']:
-                    task_timp = utils.WEEKDAYS.index(task['timp']) if freq == 'Săptămânal' else task['timp']
+                # region Delimitare azi
+                if freq in ['Zilnic', 'Săptămânal', 'Lunar', 'Anual']:
+                    task_timp = task['timp']
+                    if freq == 'Zilnic':
+                        task_timp = utils.dt.combine(utils.TODAY, utils.dt.strptime(task_timp, "%H:%M").time())
+                        task_timp = task_timp.replace(tzinfo=utils.ZoneInfo("Europe/Bucharest"))
+                    if freq == 'Săptămânal':
+                        task_timp = utils.WEEKDAYS.index(task_timp)
+                    elif freq == 'Anual':
+                        task_timp = utils.dt.strptime(f"{task_timp}{utils.dt.now().year}", '%d%b%Y').date()
                     if not st.session_state['delimitat_start'] and task_timp == timpi[freq]:
                         cols[i].write('---')
                         st.session_state['delimitat_start'] = True
                     if not st.session_state['delimitat_end'] and task_timp > timpi[freq]:
                         cols[i].write(f'---')
                         st.session_state['delimitat_end'] = True
+                # endregion
 
                 if freq in ['Săptămânal', 'Lunar', 'Anual']:
                     timp = ''.join([c for c in task['timp'] if not c.isnumeric()]) if freq == 'Anual' else task['timp']
@@ -101,13 +110,13 @@ for t in range(len(tabs)):
                 text = ('' if freq in ['Azi', 'Săptămânal'] else f"({task['timp']}) ") + f"{task['nume']}"
                 text = f'*{text}*' if task['one_time'] else text
                 colss[2 if freq == 'Azi' else 0].checkbox(text, value=task['completed'], on_change=utils.check_task,
-                                                      args=(True, task['nume'], freq, task['timp']), help=task['info'],
-                                                      key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
+                                                          args=(True, task['nume'], freq, task['timp']), help=task['info'],
+                                                          key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
                 colss[3 if freq == 'Azi' else 1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}',
-                                on_click=utils.edit_dialog,
-                                args=(task['nume'], freq, task['timp'], task['info'], task['one_time']))
+                                                        on_click=utils.edit_dialog,
+                                                        args=(task['nume'], freq, task['timp'], task['info'], task['one_time']))
                 colss[4 if freq == 'Azi' else 2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}',
-                                on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
+                                                        on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
 
             if not (tasks[freq].empty or tasks[f'✓{freq}'].empty):
                 with cols[i].expander('Completate'):

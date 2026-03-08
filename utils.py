@@ -17,6 +17,7 @@ from supabase import create_client
 # region Globale
 supabase = create_client(st.secrets['SUPABASE_URL'], st.secrets['SUPABASE_KEY'])
 BASE_PATH = 'E:\🛡️\coding\Vericu'
+TODAY_TIME = dt.now(ZoneInfo('Europe/Bucharest'))
 TODAY = dt.now(ZoneInfo('Europe/Bucharest')).date()
 WEEKDAYS = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică']
 LUNI = {
