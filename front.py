@@ -42,7 +42,8 @@ utils.reset_tasks()
 tasks = utils.get_tasks() or {}
 timp_prev = ''
 tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
-timpi = {'Zilnic': utils.TODAY_TIME, 'Săptămânal': utils.TODAY.weekday(), 'Lunar': utils.TODAY.day, 'Anual': utils.TODAY}
+timpi = {'Zilnic': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')), 'Săptămânal': utils.TODAY.weekday(),
+         'Lunar': utils.TODAY.day, 'Anual': utils.TODAY}
 
 for t in range(len(tabs)):
     with tabs[t]:
