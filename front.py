@@ -8,7 +8,7 @@ css = '''<style>
     [data-baseweb="tab"] {margin-right: 30px}
     .stMainBlockContainer {padding:1!important}
     [data-baseweb="tab-list"] .st-bd, [data-baseweb="tab-list"] .st-bn:hover {color: blue}
-    button[data-baseweb="tab"] p {font-size:60px!important;}
+    button[data-baseweb="tab"] p {font-size:55px!important;}
     .st-c1 {background-color: green!important; border-color: green!important;}
     div[data-baseweb="tab-highlight"] {background-color: blue!important;}
     label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
@@ -46,7 +46,7 @@ for t in range(len(tabs)):
             freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
             in_paranteza = ''
             if freq == 'Zilnic':
-                in_paranteza = f' ({utils.dt.now().strftime('%H:%M')})'
+                in_paranteza = f' ({utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).strftime('%H:%M')})'
             if freq == 'Săptămânal':
                 in_paranteza = f' ({utils.WEEKDAYS[utils.TODAY.weekday()]})'
             if freq in ['Lunar', 'Anual']:
@@ -119,7 +119,7 @@ for t in range(len(tabs)):
                                                         on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
 
             if not (tasks[freq].empty or tasks[f'✓{freq}'].empty):
-                with cols[i].expander('Completate'):
+                with cols[i].expander('✅ Completate'):
                     for j, task in tasks[f'✓{freq}'].iterrows():  # ✅ completate
                         colss = st.columns([5, 1, 1])
                         text = ('' if freq == 'Azi' else f"({task['timp']}) ") + f"{task['nume']}"
