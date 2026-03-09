@@ -190,7 +190,7 @@ def reset_tasks():
         last_completed = pd.to_datetime(t['last_completed'])
         frecventa = t['frecventa']
 
-        now = (dt.now() + timedelta(hours=2))
+        now = dt.now(ZoneInfo('Europe/Bucharest'))  # (dt.now() + timedelta(hours=2))   # todo remove
         if frecventa in ['Azi', 'Zilnic']:
             reset = now.day != last_completed.day
         elif frecventa == 'Săptămânal':
