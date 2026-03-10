@@ -81,7 +81,7 @@ def add_dialog(freq):
         nume_col = 0 if freq == 'Azi' else 1
         timp = '.'
         if freq == 'Zilnic':
-            timp = cols[0].time_input('', value=(dt.now() + timedelta(hours=2)).time(), label_visibility='collapsed')
+            timp = cols[0].time_input('', label_visibility='collapsed')
         elif freq == 'Săptămânal':
             timp = cols[0].selectbox('', WEEKDAYS, label_visibility='collapsed')
         elif freq == 'Lunar':
@@ -202,7 +202,7 @@ def reset_tasks():
 
         if reset:
             if frecventa == 'Azi' or t['one_time']:
-                (supabase.table('tasks').delete().eq('nume', t['nume']).eq('frecventa', 'Azi').execute())
+                supabase.table('tasks').delete().eq('nume', t['nume']).eq('frecventa', t['frecventa']).execute()
             else:
                 (supabase.table('tasks').update({'completed': False}).eq('nume', t['nume']).eq('frecventa', frecventa)
                  .eq('timp', t['timp']).execute())

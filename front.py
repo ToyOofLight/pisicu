@@ -9,7 +9,7 @@ css = '''<style>
     .stMainBlockContainer {padding:1!important}
     [data-baseweb="tab-list"] .st-bd, [data-baseweb="tab-list"] .st-bn:hover {color: blue}
     button[data-baseweb="tab"] p {font-size:55px!important;}
-    .st-c1 {background-color: green!important; border-color: green!important;}
+    # .st-c1 {background-color: green!important; border-color: green!important;}    # todo fix?
     div[data-baseweb="tab-highlight"] {background-color: blue!important;}
     label[data-baseweb="checkbox"] span {width:2rem;height:2rem;}
     .stMainBlockContainer {padding:0 20px}
