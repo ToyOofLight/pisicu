@@ -1,4 +1,5 @@
 import calendar
+import time
 # import os
 # import shutil
 # import tempfile
@@ -10,7 +11,7 @@ import pandas as pd
 # import requests
 import streamlit as st
 # from PIL import Image, ImageOps
-
+from streamlit_autorefresh import st_autorefresh
 from supabase import create_client
 
 
@@ -83,7 +84,7 @@ def add_dialog(freq):
         if freq == 'Zilnic':
             timp = cols[0].time_input('', label_visibility='collapsed')
         elif freq == 'Săptămânal':
-            timp = cols[0].selectbox('', WEEKDAYS, label_visibility='collapsed')
+            timp = cols[0].selectbox('', WEEKDAYS, label_visibility='collapsed', index=WEEKDAYS.index(AZI))
         elif freq == 'Lunar':
             timp = cols[0].number_input('', min_value=1, max_value=31, label_visibility='collapsed')
         elif freq == 'Anual':
@@ -106,7 +107,8 @@ def add_dialog(freq):
                 insert_data = {'nume': nume.strip(), 'frecventa': freq, 'timp': timp, 'info': info, 'completed': False,
                                'one_time': one_time, 'user': st.query_params['user']}
                 if freq == 'Azi':
-                    insert_data['idx'] = st.session_state.get('taskuri_azi', 0)
+                    increment_tasks_index_by_1()
+                    insert_data['idx'] = 0
                 (supabase.table('tasks').insert(insert_data).execute())
                 st.rerun()
 
@@ -153,14 +155,32 @@ def edit_dialog(nume_i, freq, timp_i, info_i, one_time_i):
     edit_task()
 
 
-def move(task, vecin, idx, up):
-    data = {'idx': int(idx - 1 if up else idx + 1)}
-    (supabase.table('tasks').update(data).eq('user', st.query_params['user']).eq('nume', task).eq('frecventa', 'Azi').execute())
-    data = {'idx': int(idx)}
-    (supabase.table('tasks').update(data).eq('user', st.query_params['user']).eq('nume', vecin).eq('frecventa', 'Azi').execute())
+def move_task(task, position):
+    idx = st.session_state['taskuri_azi'] + 1
+    if position == 'top':
+        idx = 0
+        increment_tasks_index_by_1()
+    (supabase.table('tasks').update({'idx': idx}).eq('user', st.query_params['user']).eq('nume', task).
+     eq('frecventa', 'Azi').execute())
+    reindex_tasks()
+
+
+def increment_tasks_index_by_1():
+    rows = (supabase.table('tasks').select('idx', 'nume').eq('user', st.query_params['user']).eq('frecventa', 'Azi')
+        .not_.is_('idx', 'null').execute()).data
+    for row in rows:
+        (supabase.table('tasks').update({'idx': row['idx'] + 1}).eq('user', st.query_params['user'])
+         .eq('frecventa', 'Azi').eq('nume', row['nume']).execute())
 
 
 def reindex_tasks():
+    """
+    Reindexează task-urile cu frecvența "Azi" pentru utilizatorul curent,
+    astfel încât valorile `idx` să devină consecutive, începând de la 0.
+    Preia toate task-urile cu `idx` nenul, ordonate după `idx`, și actualizează
+    fiecare rând astfel încât indexul să corespundă poziției sale în lista ordonată.
+    Elimină golurile sau neconcordanțele din indexare.
+    """
     rows = (supabase.table('tasks').select('nume, idx').eq('user', st.query_params['user']).eq('frecventa', 'Azi').not_.is_('idx', 'null').order('idx').execute()).data
     for new_idx, row in enumerate(rows):
         supabase.table('tasks').update({'idx': new_idx}).eq('idx', row['idx']).eq('user', st.query_params['user']).execute()

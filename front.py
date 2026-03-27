@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 import utils
@@ -34,6 +35,19 @@ timp_prev = ''
 tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
 timpi = {'Zilnic': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')), 'Săptămânal': utils.TODAY.weekday(),
          'Lunar': utils.TODAY.day, 'Anual': utils.TODAY}
+
+extra_azi_tasks = []
+now = utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))
+for freq in ['Săptămânal', 'Lunar', 'Anual']:
+    for i, task in tasks[freq].iterrows():
+        if freq == 'Săptămânal':
+            add = utils.WEEKDAYS[utils.TODAY.weekday()] == task['timp']
+        elif freq == 'Lunar':
+            add = utils.dt.now().day == task['timp']
+        elif freq == 'Anual':
+            add = f'{utils.dt.now().day}{utils.dt.now().strftime('%b')}' == task['timp']
+        if add:
+            extra_azi_tasks.append(task)
 
 for t in range(len(tabs)):
     with tabs[t]:
@@ -100,15 +114,16 @@ for t in range(len(tabs)):
                         timp_prev = timp
 
                 colss = cols[i].columns([.5, .5, 4, 1, 1] if freq == 'Azi' else [5, 1, 1])
-                if freq == 'Azi':   # reorder
+                if freq == 'Azi':   # Reorder
                     if task['idx'] > 0:
-                        colss[0].button('⬆️️', key=f'up_{task["nume"]}', on_click=utils.move,
-                                        args=(task['nume'], tasks[freq].iloc[j - 1]['nume'], task['idx'], True))
+                        colss[0].button('⬆️️', help='move to top', key=f'top_{task["nume"]}',
+                                        on_click=utils.move_task, args=(task['nume'], 'top'))
                     if task['idx'] < max(tasks[freq]['idx']):
-                        colss[1].button('⬇️', key=f'down_{task["nume"]}', on_click=utils.move,
-                                        args=(task['nume'], tasks[freq].iloc[j + 1]['nume'], task['idx'], False))
+                        colss[1].button('⬇️', help='move to bottom', key=f'bot_{task["nume"]}',
+                                        on_click=utils.move_task, args=(task['nume'], 'bot'))
+
                 text = ('' if freq in ['Azi', 'Săptămânal'] else f"({task['timp']}) ") + f"{task['nume']}"
-                text = f'*{text}*' if task['one_time'] else text
+                text = (f"{int(task['idx'])}: " if freq == 'Azi' else '') + (f'*{text}*' if task['one_time'] else text)
                 colss[2 if freq == 'Azi' else 0].checkbox(text, value=task['completed'], on_change=utils.check_task,
                                                           args=(True, task['nume'], freq, task['timp']), help=task['info'],
                                                           key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
@@ -118,7 +133,22 @@ for t in range(len(tabs)):
                 colss[4 if freq == 'Azi' else 2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}',
                                                         on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
 
-            if not (tasks[freq].empty or tasks[f'✓{freq}'].empty):
+            # region extra_azi_tasks:
+            if freq == 'Azi' and extra_azi_tasks:  # todo complete
+                cols[i].write('---')
+                colsss = cols[i].columns([.5, .5, 4, 1, 1])
+                for task in extra_azi_tasks:
+                    text = f'*{task['nume']}*' if task['one_time'] else task['nume']
+                    colsss[2].checkbox(text, value=task['completed'], on_change=utils.check_task,
+                                      args=(True, task['nume'], task['freq'], task['timp']), help=task['info'],
+                                      key=f'check_{task['freq']}_{task["nume"]}_{task["timp"]}')
+                    colsss[3].button('✏️', key=f'edit_{task['freq']}_{task["nume"]}_{task["timp"]}', on_click=utils.edit_dialog,
+                                    args=(task['nume'], task['freq'], task['timp'], task['info'], task['one_time']))
+                    colsss[4].button('❌', key=f'del_{task['freq']}_{task["nume"]}_{task["timp"]}',
+                                    on_click=utils.delete_task, args=(task['nume'], task['freq'], task['timp']))
+            # endregion
+
+            if not tasks[f'✓{freq}'].empty:
                 with cols[i].expander('✅ Completate'):
                     for j, task in tasks[f'✓{freq}'].iterrows():  # ✅ completate
                         colss = st.columns([5, 1, 1])
@@ -200,3 +230,6 @@ if st.query_params['user'] == 'Elvin':
 # with food:
 #     st.header("A doge")
 #     st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+
+
+utils.st_autorefresh(interval=3600000, key='dataframerefresh')  # 🔃 Refresh the page every 1h
