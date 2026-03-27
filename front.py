@@ -134,18 +134,18 @@ for t in range(len(tabs)):
                                                         on_click=utils.delete_task, args=(task['nume'], freq, task['timp']))
 
             # region extra_azi_tasks:
-            if freq == 'Azi' and extra_azi_tasks:  # todo complete
+            if freq == 'Azi' and extra_azi_tasks:
                 cols[i].write('---')
                 colsss = cols[i].columns([.5, .5, 4, 1, 1])
                 for task in extra_azi_tasks:
-                    text = f'*{task['nume']}*' if task['one_time'] else task['nume']
+                    text = f'*{task['nume']}*' if task['one_time'] else task['nume'] + f" ({task['frecventa']})"
                     colsss[2].checkbox(text, value=task['completed'], on_change=utils.check_task,
-                                      args=(True, task['nume'], task['freq'], task['timp']), help=task['info'],
-                                      key=f'check_{task['freq']}_{task["nume"]}_{task["timp"]}')
-                    colsss[3].button('✏️', key=f'edit_{task['freq']}_{task["nume"]}_{task["timp"]}', on_click=utils.edit_dialog,
-                                    args=(task['nume'], task['freq'], task['timp'], task['info'], task['one_time']))
-                    colsss[4].button('❌', key=f'del_{task['freq']}_{task["nume"]}_{task["timp"]}',
-                                    on_click=utils.delete_task, args=(task['nume'], task['freq'], task['timp']))
+                                      args=(True, task['nume'], task['frecventa'], task['timp']), help=task['info'],
+                                      key=f'check_{task['frecventa']}_{task["nume"]}_{task["timp"]}_azi')
+                    colsss[3].button('✏️', key=f'edit_{task['frecventa']}_{task["nume"]}_{task["timp"]}_azi', on_click=utils.edit_dialog,
+                                    args=(task['nume'], task['frecventa'], task['timp'], task['info'], task['one_time']))
+                    colsss[4].button('❌', key=f'del_{task['frecventa']}_{task["nume"]}_{task["timp"]}_azi',
+                                    on_click=utils.delete_task, args=(task['nume'], task['frecventa'], task['timp']))
             # endregion
 
             if not tasks[f'✓{freq}'].empty:
@@ -154,7 +154,7 @@ for t in range(len(tabs)):
                         colss = st.columns([5, 1, 1])
                         text = ('' if freq == 'Azi' else f"({task['timp']}) ") + f"{task['nume']}"
                         text = f'*{text}*' if task['one_time'] else text
-                        colss[0].checkbox(f'~~{text}~~', value=task['completed'], on_change=utils.check_task,
+                        colss[0].checkbox(f'~~{text}~~', value=True, on_change=utils.check_task,
                                           args=(False, task['nume'], freq, task['timp']), help=task['info'],
                                           key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
                         colss[1].button('✏️', key=f'edit_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.edit_dialog,
