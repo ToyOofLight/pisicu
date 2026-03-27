@@ -123,7 +123,7 @@ for t in range(len(tabs)):
                                         on_click=utils.move_task, args=(task['nume'], 'bot'))
 
                 text = ('' if freq in ['Azi', 'Săptămânal'] else f"({task['timp']}) ") + f"{task['nume']}"
-                text = (f"{int(task['idx'])}: " if freq == 'Azi' else '') + (f'*{text}*' if task['one_time'] else text)
+                text = f'*{text}*' if task['one_time'] else text
                 colss[2 if freq == 'Azi' else 0].checkbox(text, value=task['completed'], on_change=utils.check_task,
                                                           args=(True, task['nume'], freq, task['timp']), help=task['info'],
                                                           key=f'check_{freq}_{task["nume"]}_{task["timp"]}')
