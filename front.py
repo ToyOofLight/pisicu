@@ -57,7 +57,7 @@ for t in range(len(tabs)):
             st.session_state['delimitat_start'], st.session_state['delimitat_end'] = False, False
 
             colss = cols[i].columns([1, 6])
-            freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
+            freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.dt.now().day}{utils.dt.now().strftime('%b')})' if freq == 'Azi' else freq
             in_paranteza = ''
             if freq == 'Zilnic':
                 in_paranteza = f' ({utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).strftime('%H:%M')})'
@@ -136,9 +136,9 @@ for t in range(len(tabs)):
             # region extra_azi_tasks:
             if freq == 'Azi' and extra_azi_tasks:
                 cols[i].write('---')
-                colsss = cols[i].columns([.5, .5, 4, 1, 1])
                 for task in extra_azi_tasks:
-                    text = f'*{task['nume']}*' if task['one_time'] else task['nume'] + f" ({task['frecventa']})"
+                    colsss = cols[i].columns([.5, .5, 4, 1, 1])
+                    text = f'*{task['nume']}*' if task['one_time'] else task['nume'] + f" ({task['timp']})"
                     colsss[2].checkbox(text, value=task['completed'], on_change=utils.check_task,
                                       args=(True, task['nume'], task['frecventa'], task['timp']), help=task['info'],
                                       key=f'check_{task['frecventa']}_{task["nume"]}_{task["timp"]}_azi')
