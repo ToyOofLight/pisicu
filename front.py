@@ -1,5 +1,5 @@
-import pandas as pd
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 
 import utils
 
@@ -33,15 +33,15 @@ utils.reset_tasks()
 tasks = utils.get_tasks() or {}
 timp_prev = ''
 tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
-timpi = {'Zilnic': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')), 'Săptămânal': utils.TODAY.weekday(),
-         'Lunar': utils.TODAY.day, 'Anual': utils.TODAY}
+timpi = {'Zilnic': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')), 'Săptămânal': utils.dt.now().date().weekday(),
+         'Lunar': utils.dt.now().date().day, 'Anual': utils.dt.now().date()}
 
 extra_azi_tasks = []
 now = utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))
 for freq in ['Săptămânal', 'Lunar', 'Anual']:
     for i, task in tasks[freq].iterrows():
         if freq == 'Săptămânal':
-            add = utils.WEEKDAYS[utils.TODAY.weekday()] == task['timp']
+            add = utils.WEEKDAYS[utils.dt.now().date().weekday()] == task['timp']
         elif freq == 'Lunar':
             add = utils.dt.now().day == task['timp']
         elif freq == 'Anual':
@@ -57,12 +57,12 @@ for t in range(len(tabs)):
             st.session_state['delimitat_start'], st.session_state['delimitat_end'] = False, False
 
             colss = cols[i].columns([1, 6])
-            freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.dt.now().day}{utils.dt.now().strftime('%b')})' if freq == 'Azi' else freq
+            freq_text = f'{freq} ({utils.WEEKDAYS[utils.dt.now().date().weekday()]} {utils.dt.now().day}{utils.dt.now().strftime('%b')})' if freq == 'Azi' else freq
             in_paranteza = ''
             if freq == 'Zilnic':
                 in_paranteza = f' ({utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).strftime('%H:%M')})'
             if freq == 'Săptămânal':
-                in_paranteza = f' ({utils.WEEKDAYS[utils.TODAY.weekday()]})'
+                in_paranteza = f' ({utils.WEEKDAYS[utils.dt.now().date().weekday()]})'
             if freq in ['Lunar', 'Anual']:
                 in_paranteza = f' ({utils.dt.now().day}{utils.dt.now().strftime('%b')})'
             freq_text += in_paranteza
@@ -84,7 +84,7 @@ for t in range(len(tabs)):
                 if freq in ['Zilnic', 'Săptămânal', 'Lunar', 'Anual']:
                     task_timp = task['timp']
                     if freq == 'Zilnic':
-                        task_timp = utils.dt.combine(utils.TODAY, utils.dt.strptime(task_timp, '%H:%M').time())
+                        task_timp = utils.dt.combine(utils.dt.now().date(), utils.dt.strptime(task_timp, '%H:%M').time())
                         task_timp = task_timp.replace(tzinfo=utils.ZoneInfo("Europe/Bucharest"))
                     elif freq == 'Săptămânal':
                         task_timp = utils.WEEKDAYS.index(task_timp)
@@ -138,7 +138,7 @@ for t in range(len(tabs)):
                 cols[i].write('---')
                 for task in extra_azi_tasks:
                     colsss = cols[i].columns([.5, .5, 4, 1, 1])
-                    text = f'*{task['nume']}*' if task['one_time'] else task['nume'] + f" ({task['timp']})"
+                    text = f'*{task['nume']}*' if task['one_time'] else task['nume']
                     colsss[2].checkbox(text, value=task['completed'], on_change=utils.check_task,
                                       args=(True, task['nume'], task['frecventa'], task['timp']), help=task['info'],
                                       key=f'check_{task['frecventa']}_{task["nume"]}_{task["timp"]}_azi')
@@ -162,7 +162,7 @@ for t in range(len(tabs)):
                         colss[2].button('❌', key=f'del_{freq}_{task["nume"]}_{task["timp"]}', on_click=utils.delete_task,
                                         args=(task['nume'], freq, task['timp']))
 
-    # freq_text = f'{freq} ({utils.WEEKDAYS[utils.TODAY.weekday()]} {utils.TODAY.strftime("%d%b")})' if freq == 'Azi' else freq
+    # freq_text = f'{freq} ({utils.WEEKDAYS[utils.dt.now().date().weekday()]} {utils.dt.now().date().strftime("%d%b")})' if freq == 'Azi' else freq
     # cols[i].button(f'➕{" ‎ "*2}{freq_text}', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
     #
     # if not freq in tasks.keys():
@@ -190,8 +190,7 @@ for t in range(len(tabs)):
 
 if st.query_params['user'] == 'Elvin':
     st.write(f'TODAY: {utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))}')   # todo remove
-    st.write(f'TODAY: {utils.TODAY}')   # todo remove
-    st.write(f'dt.now(): {utils.dt.now()}')   # todo remove
+    st.write(f'dt.now().date(): {utils.dt.now().date()}')   # todo remove
     st.write(f'dt.now() + timedelta(hours=2): {utils.dt.now() + utils.timedelta(hours=2)}')   # todo remove
 
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
@@ -232,4 +231,4 @@ if st.query_params['user'] == 'Elvin':
 #     st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
 
 
-utils.st_autorefresh(interval=3600000, key='dataframerefresh')  # 🔃 Refresh the page every 1h
+st_autorefresh(interval=3600000, key='dataframerefresh')  # 🔃 Refresh the page every 1h

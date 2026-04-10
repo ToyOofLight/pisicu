@@ -1,24 +1,14 @@
 import calendar
-import time
-# import os
-# import shutil
-# import tempfile
-# import time
 from datetime import timedelta, timezone, datetime as dt
 from zoneinfo import ZoneInfo
-import pandas as pd
-# import psycopg2
-# import requests
-import streamlit as st
-# from PIL import Image, ImageOps
-from streamlit_autorefresh import st_autorefresh
-from supabase import create_client
 
+import pandas as pd
+import streamlit as st
+from supabase import create_client
 
 # region Globale
 supabase = create_client(st.secrets['SUPABASE_URL'], st.secrets['SUPABASE_KEY'])
 BASE_PATH = 'E:\🛡️\coding\Vericu'
-TODAY = dt.now(ZoneInfo('Europe/Bucharest')).date()
 WEEKDAYS = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică']
 LUNI = {
     'Jan': 'Ianuarie',
@@ -34,8 +24,8 @@ LUNI = {
     'Nov': 'Noiembrie',
     'Dec': 'Decembrie'
 }
-AZI = WEEKDAYS[TODAY.weekday()]
-states_file = f"states_{str(TODAY)[4:].replace('-', '')}.csv"
+AZI = WEEKDAYS[dt.now().date().weekday()]
+states_file = f"states_{str(dt.now().date())[4:].replace('-', '')}.csv"
 FRECVENTE = ['Azi', 'Zilnic', 'Săptămânal', 'Lunar', 'Anual']
 USERS = ['elvin', 'ioana']
 # endregion
