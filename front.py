@@ -33,19 +33,21 @@ utils.reset_tasks()
 tasks = utils.get_tasks() or {}
 timp_prev = ''
 tabs = st.tabs(['Azi+Zilnic', 'Săptămânal+Lunar', 'Anual'])
-timpi = {'Zilnic': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')), 'Săptămânal': utils.dt.now().date().weekday(),
-         'Lunar': utils.dt.now().date().day, 'Anual': utils.dt.now().date()}
+timpi = {'Zilnic': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')),
+         'Săptămânal': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).date().weekday(),
+         'Lunar': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).date().day,
+         'Anual': utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).date()}
 
 extra_azi_tasks = []
 now = utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))
 for freq in ['Săptămânal', 'Lunar', 'Anual']:
     for i, task in tasks[freq].iterrows():
         if freq == 'Săptămânal':
-            add = utils.WEEKDAYS[utils.dt.now().date().weekday()] == task['timp']
+            add = utils.WEEKDAYS[utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).date().weekday()] == task['timp']
         elif freq == 'Lunar':
-            add = utils.dt.now().day == task['timp']
+            add = utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).day == task['timp']
         elif freq == 'Anual':
-            add = f'{utils.dt.now().day}{utils.dt.now().strftime('%b')}' == task['timp']
+            add = f'{utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).day}{utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).strftime('%b')}' == task['timp']
         if add:
             extra_azi_tasks.append(task)
 
@@ -57,14 +59,14 @@ for t in range(len(tabs)):
             st.session_state['delimitat_start'], st.session_state['delimitat_end'] = False, False
 
             colss = cols[i].columns([1, 6])
-            freq_text = f'{freq} ({utils.WEEKDAYS[utils.dt.now().date().weekday()]} {utils.dt.now().day}{utils.dt.now().strftime('%b')})' if freq == 'Azi' else freq
+            freq_text = f'{freq} ({utils.WEEKDAYS[utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).date().weekday()]} {utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).day}{utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).strftime('%b')})' if freq == 'Azi' else freq
             in_paranteza = ''
             if freq == 'Zilnic':
                 in_paranteza = f' ({utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).strftime('%H:%M')})'
             if freq == 'Săptămânal':
-                in_paranteza = f' ({utils.WEEKDAYS[utils.dt.now().date().weekday()]})'
+                in_paranteza = f' ({utils.WEEKDAYS[utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).date().weekday()]})'
             if freq in ['Lunar', 'Anual']:
-                in_paranteza = f' ({utils.dt.now().day}{utils.dt.now().strftime('%b')})'
+                in_paranteza = f' ({utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).day}{utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).strftime('%b')})'
             freq_text += in_paranteza
             colss[0].button('➕', key=f'{freq}+', on_click=utils.add_dialog, args=(freq,))
 
@@ -84,12 +86,12 @@ for t in range(len(tabs)):
                 if freq in ['Zilnic', 'Săptămânal', 'Lunar', 'Anual']:
                     task_timp = task['timp']
                     if freq == 'Zilnic':
-                        task_timp = utils.dt.combine(utils.dt.now().date(), utils.dt.strptime(task_timp, '%H:%M').time())
+                        task_timp = utils.dt.combine(utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).date(), utils.dt.strptime(task_timp, '%H:%M').time())
                         task_timp = task_timp.replace(tzinfo=utils.ZoneInfo("Europe/Bucharest"))
                     elif freq == 'Săptămânal':
                         task_timp = utils.WEEKDAYS.index(task_timp)
                     elif freq == 'Anual':
-                        task_timp = utils.dt.strptime(f"{task_timp}{utils.dt.now().year}", '%d%b%Y').date()
+                        task_timp = utils.dt.strptime(f"{task_timp}{utils.dt.now(utils.ZoneInfo('Europe/Bucharest')).year}", '%d%b%Y').date()
                     if not st.session_state['delimitat_start'] and task_timp == timpi[freq]:
                         cols[i].write('---')
                         st.session_state['delimitat_start'] = True
