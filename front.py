@@ -190,12 +190,6 @@ for t in range(len(tabs)):
     #     colss[2].button('❌', key=f'del_{freq}_{row["nume"]}', on_click=utils.delete_task,
     #                     args=(row['nume'], freq, row['timp']))
 
-if st.query_params['user'] == 'Elvin':
-    st.write(f'TODAY: {utils.dt.now(utils.ZoneInfo('Europe/Bucharest'))}')   # todo remove
-    st.write(f'dt.now().date(): {utils.dt.now().date()}')   # todo remove
-    st.write(f'dt.now(): {utils.dt.now()}')   # todo remove
-    st.write(f'dt.now() + timedelta(hours=2): {utils.dt.now() + utils.timedelta(hours=2)}')   # todo remove
-
 # with cols[-2].expander('🎂 Aniversări', expanded=True):
 #     sarbatoriti, upcoming = utils.get_birthdays()
 #     if len(sarbatoriti) > 0:

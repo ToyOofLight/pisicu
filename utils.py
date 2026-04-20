@@ -74,13 +74,14 @@ def add_dialog(freq):
         if freq == 'Zilnic':
             timp = cols[0].time_input('', label_visibility='collapsed')
         elif freq == 'Săptămânal':
-            timp = cols[0].selectbox('', WEEKDAYS, label_visibility='collapsed', index=WEEKDAYS.index(AZI))
+            timp = cols[0].selectbox('', WEEKDAYS, label_visibility='collapsed', index=WEEKDAYS.index(WEEKDAYS[dt.now(ZoneInfo('Europe/Bucharest')).date().weekday()]))
         elif freq == 'Lunar':
-            timp = cols[0].number_input('', min_value=1, max_value=31, label_visibility='collapsed')
+            timp = cols[0].number_input('', min_value=1, max_value=31, label_visibility='collapsed', value=dt.now(ZoneInfo('Europe/Bucharest')).day)
         elif freq == 'Anual':
             colss = cols[0].columns([1, 2])
-            ziua = colss[0].number_input('', min_value=1, max_value=31, step=1, label_visibility='collapsed')
-            luna = colss[1].selectbox('', list(calendar.month_abbr)[1:], label_visibility='collapsed')
+            ziua = colss[0].number_input('', min_value=1, max_value=31, step=1, label_visibility='collapsed', value=dt.now(ZoneInfo('Europe/Bucharest')).day)
+            months = list(calendar.month_abbr)[1:]
+            luna = colss[1].selectbox('', months, label_visibility='collapsed', index=months.index(dt.now(ZoneInfo('Europe/Bucharest')).strftime('%b')))
             timp = f'{ziua}{luna}'
 
         nume = cols[nume_col].text_input('', placeholder='denumire', autocomplete='off', label_visibility='collapsed')
