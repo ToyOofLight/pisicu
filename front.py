@@ -227,5 +227,11 @@ for t in range(len(tabs)):
 #     st.header("A doge")
 #     st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
 
-
+if st.query_params['user'].lower() == 'elvin':
+    st.text('Deploy', help='''
+    In consola PyCharm:
+    git add .
+    git commit -m 'text'
+    git push
+''')
 st_autorefresh(interval=3600000, key='dataframerefresh')  # 🔃 Refresh the page every 1h
