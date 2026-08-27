@@ -12,7 +12,7 @@ css = '''<style>
     button[data-baseweb="tab"] p {font-size:55px!important;}
     div[data-baseweb="tab-highlight"] {background-color: blue!important;}
     # .stCheckbox label > div:first-child, .stCheckbox label > span {width:2rem;height:2rem;} # todo uncomm
-    .stCheckbox label > div:first-child {width:2rem;height:2rem;} # todo remove
+    .stCheckbox label div:first-child {width:2rem;height:2rem;} # todo remove
     .stMainBlockContainer {padding:0 20px}
     .stAppHeader, ._container_gzau3_1, ._viewerBadge_nim44_23 {display: none;}
     
