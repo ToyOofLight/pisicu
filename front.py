@@ -10,11 +10,13 @@ css = '''<style>
     .stMainBlockContainer {padding:1!important}
     [data-baseweb="tab-list"] .st-bd, [data-baseweb="tab-list"] .st-bn:hover {color: blue}
     button[data-baseweb="tab"] p {font-size:55px!important;}
-    # .st-c1 {background-color: green!important; border-color: green!important;}    # todo fix?
     div[data-baseweb="tab-highlight"] {background-color: blue!important;}
-    label[data-baseweb="checkbox"] span, div.st-emotion-cache-bqwma9.ew2p8o3, div.st-emotion-cache-xjxhw3.ew2p8o3 {width:2rem;height:2rem;}
+    .stCheckbox label > div:first-child, .stCheckbox label > span {width:2rem;height:2rem;}
     .stMainBlockContainer {padding:0 20px}
     .stAppHeader, ._container_gzau3_1, ._viewerBadge_nim44_23 {display: none;}
+    
+    # label[data-baseweb="checkbox"] span, div.st-emotion-cache-bqwma9.ew2p8o3, div.st-emotion-cache-xjxhw3.ew2p8o3 {width:2rem;height:2rem;}   # todo remove?
+    # .st-c1 {background-color: green!important; border-color: green!important;}    # todo fix?
 '''
 
 # region Specifications
