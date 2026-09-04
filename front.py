@@ -7,7 +7,7 @@ css = '''<style>
     button[kind="secondary"] { border: none!important; background-color: transparent; }
     p {font-size: 30px!important;}
     [data-baseweb="tab"] {margin-right: 30px}
-    .stMainBlockContainer {padding:1!important}
+    .stMainBlockContainer {padding:1px!important}
     [data-baseweb="tab-list"] .st-bd, [data-baseweb="tab-list"] .st-bn:hover {color: blue}
     button[data-baseweb="tab"] p {font-size:55px!important;}
     div[data-baseweb="tab-highlight"] {background-color: blue!important;}
